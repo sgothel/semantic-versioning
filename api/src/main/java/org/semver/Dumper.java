@@ -18,8 +18,10 @@ package org.semver;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +30,10 @@ import java.util.Set;
 
 import org.osjava.jardiff.AbstractInfo;
 import org.osjava.jardiff.ClassInfo;
+import org.osjava.jardiff.FieldInfo;
+import org.osjava.jardiff.MethodInfo;
+import org.osjava.jardiff.Tools;
 import org.semver.Delta.Difference;
-import org.semver.Delta.Change;
 
 /**
  *
@@ -52,11 +56,14 @@ public class Dumper {
     }
 
     protected static String extractDetails(final Difference difference) {
-        if (difference instanceof Change) {
-            final Change change = (Change) difference;
-            return extractDetails(difference.getInfo())+", access "+extractAccessDetails(difference.getInfo(), change.getModifiedInfo());
+        if (difference instanceof Delta.Change) {
+            final Delta.Change change = (Delta.Change) difference;
+            return extractDetails(difference.getInfo())+", "+extractChangeDetails(difference.getInfo(), change.getModifiedInfo());
+        } else if (difference instanceof Delta.CompatChange) {
+            final Delta.CompatChange change = (Delta.CompatChange) difference;
+            return extractDetails(difference.getInfo())+", "+extractCompatChangeDetails(difference.getInfo(), change.getModifiedInfo());
         } else {
-            return extractDetails(difference.getInfo())+", access "+extractAccessDetails(difference.getInfo());
+            return extractDetails(difference.getInfo())+", access["+extractAccessDetails(difference.getInfo())+"]";
         }
     }
 
@@ -74,6 +81,51 @@ public class Dumper {
         return builder.toString();
     }
 
+    protected static String extractChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(", access[");
+        return extractAccessDetails(builder, previousInfo, currentInfo).append("]").toString().trim();
+    }
+
+    protected static String extractCompatChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
+        final StringBuilder builder = new StringBuilder();
+        if( previousInfo instanceof MethodInfo ) {
+            final MethodInfo mPreInfo = (MethodInfo)previousInfo;
+            final MethodInfo mCurInfo = (MethodInfo)currentInfo;
+            final String[] preThrows = mPreInfo.getExceptions();
+            final String[] curThrows = mCurInfo.getExceptions();
+            if (Tools.isThrowsClauseChange(preThrows, curThrows)) {
+                final HashSet<String> preThrowsSet;
+                final HashSet<String> curThrowsSet;
+                if( null != preThrows ) {
+                    preThrowsSet = new HashSet<String>(Arrays.asList(preThrows));
+                } else {
+                    preThrowsSet = new HashSet<String>();
+                }
+                if( null != curThrows ) {
+                    curThrowsSet = new HashSet<String>(Arrays.asList(curThrows));
+                } else {
+                    curThrowsSet = new HashSet<String>();
+                }
+                preThrowsSet.removeAll(curThrowsSet);
+                curThrowsSet.removeAll(preThrowsSet);
+                builder.append("throws[removed").append(preThrowsSet.toString())
+                .append(", added").append(curThrowsSet.toString()).append("]");
+            }
+        } else if( previousInfo instanceof FieldInfo ) {
+            final FieldInfo fPreInfo = (FieldInfo)previousInfo;
+            final FieldInfo fCurInfo = (FieldInfo)currentInfo;
+            final Object preValue = fPreInfo.getValue();
+            final Object curValue = fCurInfo.getValue();
+            if (Tools.isFieldValueChange(preValue, curValue)) {
+                builder.append("value[old: ").append(preValue)
+                .append(" != new: ").append(curValue).append("]");
+            }
+        }
+        builder.append(", access[");
+        return extractAccessDetails(builder, previousInfo, currentInfo).append("]").toString().trim();
+    }
+
     protected static void accumulateAccessDetails(final String access, final boolean previousAccess, final boolean currentAccess, final List<String> added, final List<String> removed) {
         if (previousAccess != currentAccess) {
             if (previousAccess) {
@@ -85,6 +137,9 @@ public class Dumper {
     }
 
     protected static String extractAccessDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
+        return extractAccessDetails(new StringBuilder(), previousInfo, currentInfo).toString().trim();
+    }
+    protected static StringBuilder extractAccessDetails(final StringBuilder details, final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
         final List<String> added = new LinkedList<String>();
         final List<String> removed = new LinkedList<String>();
         accumulateAccessDetails("abstract", previousInfo.isAbstract(), currentInfo.isAbstract(), added, removed);
@@ -106,7 +161,6 @@ public class Dumper {
         accumulateAccessDetails("transcient", previousInfo.isTransient(), currentInfo.isTransient(), added, removed);
         accumulateAccessDetails("varargs", previousInfo.isVarargs(), currentInfo.isVarargs(), added, removed);
         accumulateAccessDetails("volatile", previousInfo.isVolatile(), currentInfo.isVolatile(), added, removed);
-        final StringBuilder details = new StringBuilder();
         if (!added.isEmpty()) {
             details.append("added: ");
             for (final String access : added) {
@@ -119,7 +173,7 @@ public class Dumper {
                 details.append(access).append(" ");
             }
         }
-        return details.toString().trim();
+        return details;
     }
 
     protected static void accumulateAccessDetails(final String access, final boolean hasAccess, final List<String> accessList) {
@@ -159,9 +213,7 @@ public class Dumper {
     }
 
     /**
-     *
      * Dumps on {@link System#out} all differences, sorted by class name.
-     *
      * @param delta the delta to be dumped
      */
     public static void dump(final Delta delta) {
@@ -170,7 +222,6 @@ public class Dumper {
 
     /**
      * Dumps on <code>out</code> all differences, sorted by class name.
-     *
      * @param delta the delta to be dumped
      * @param out
      */
@@ -182,7 +233,6 @@ public class Dumper {
 
     /**
      * Dumps on <code>out</code> all of the given sorted differences.
-     *
      * @param sortedDifferences the sorted differences to be dumped
      * @param out the print output stream
      */
@@ -192,7 +242,8 @@ public class Dumper {
             if (!currentClassName.equals(difference.getClassName())) {
                 out.println("Class "+difference.getClassName());
             }
-            out.println(" "+extractActionType(difference)+" "+extractInfoType(difference.getInfo())+" "+extractDetails(difference));
+            out.println(" "+extractActionType(difference)+" "+extractInfoType(difference.getInfo())+
+                        " "+extractDetails(difference));
             currentClassName = difference.getClassName();
         }
     }
@@ -212,6 +263,7 @@ public class Dumper {
 
         final List<Difference> diffsAdd = new ArrayList<Difference>();
         final List<Difference> diffsChange = new ArrayList<Difference>();
+        final List<Difference> diffsCompatChange = new ArrayList<Difference>();
         final List<Difference> diffsDeprecate = new ArrayList<Difference>();
         final List<Difference> diffsRemove = new ArrayList<Difference>();
         final Map<String, DiffCount> className2DiffCount = new HashMap<String, DiffCount>();
@@ -235,6 +287,9 @@ public class Dumper {
             } else if( diff instanceof Delta.Change ) {
                 diffsChange.add(diff);
                 dc.changes++;
+            } else if( diff instanceof Delta.CompatChange ) {
+                diffsCompatChange.add(diff);
+                dc.compatChanges++;
             } else if( diff instanceof Delta.Deprecate ) {
                 diffsDeprecate.add(diff);
                 dc.deprecates++;
@@ -245,6 +300,7 @@ public class Dumper {
         }
         Collections.sort(diffsAdd);
         Collections.sort(diffsChange);
+        Collections.sort(diffsCompatChange);
         Collections.sort(diffsDeprecate);
         Collections.sort(diffsRemove);
 
@@ -254,6 +310,7 @@ public class Dumper {
         System.err.println("Summary: "+diffs.size()+" differences in "+classNames.size()+" classes:");
         System.err.println("  Remove "+diffsRemove.size()+
                            ", Change "+diffsChange.size()+
+                           ", CompatChange "+diffsCompatChange.size()+
                            ", Deprecate "+diffsDeprecate.size()+
                            ", Add "+diffsAdd.size());
         System.err.printf("%n");
@@ -271,6 +328,9 @@ public class Dumper {
         System.err.printf("%n%nChanges%n%n");
         dump(diffsChange, System.err);
 
+        System.err.printf("%n%nCompatChanges%n%n");
+        dump(diffsCompatChange, System.err);
+
         System.err.printf("%n%nDeprecates%n%n");
         dump(diffsDeprecate, System.err);
 
@@ -280,16 +340,17 @@ public class Dumper {
     }
 
     static class DiffCount {
-        public DiffCount(String name) { this.name = name; }
+        public DiffCount(final String name) { this.name = name; }
         public final String name;
         public int removes;
         public int changes;
+        public int compatChanges;
         public int deprecates;
         public int additions;
-        public String toString() { return name+": Remove "+removes+", Change "+changes+", Deprecate "+deprecates+", Add "+additions; }
+        public String toString() { return name+": Remove "+removes+", Change "+changes+", CompatChange "+compatChanges+", Deprecate "+deprecates+", Add "+additions; }
         public String format(final int iwidth) {
-            return String.format("Remove %"+iwidth+"d, Change %"+iwidth+"d, Deprecate %"+iwidth+"d, Add %"+iwidth+"d",
-                                    removes, changes, deprecates, additions);
+            return String.format("Remove %"+iwidth+"d, Change %"+iwidth+"d, CompatChange %"+iwidth+"d, Deprecate %"+iwidth+"d, Add %"+iwidth+"d",
+                                    removes, changes, compatChanges, deprecates, additions);
         }
     }
 

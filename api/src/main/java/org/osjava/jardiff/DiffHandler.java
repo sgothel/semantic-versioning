@@ -28,7 +28,7 @@ public interface DiffHandler
     /**
      * Start a diff between two versions, where string a is the old version
      * and string b is the new version.
-     * 
+     *
      * @param a the name of the old version
      * @param b the name of the new version
      * @throws DiffException when there is an underlying exception, e.g.
@@ -85,7 +85,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startRemoved() throws DiffException;
-    
+
     /**
      * Notification that a class was removed.
      *
@@ -94,7 +94,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void classRemoved(ClassInfo classinfo) throws DiffException;
-    
+
     /**
      * End of list of removed classes.
      *
@@ -102,7 +102,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void endRemoved() throws DiffException;
-    
+
     /**
      * Start of list of added classes.
      *
@@ -110,7 +110,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startAdded() throws DiffException;
-    
+
     /**
      * Notification that a class was added.
      *
@@ -119,7 +119,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void classAdded(ClassInfo classinfo) throws DiffException;
-    
+
     /**
      * End of list of removed classes.
      *
@@ -127,7 +127,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void endAdded() throws DiffException;
-    
+
     /**
      * Start list of changed classes.
      *
@@ -135,7 +135,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startChanged() throws DiffException;
-    
+
     /**
      * Start information about class changes for the classname passed.
      *
@@ -143,7 +143,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startClassChanged(String string) throws DiffException;
-    
+
     /**
      * The field was removed for the current class that has changed.
      *
@@ -152,7 +152,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void fieldRemoved(FieldInfo fieldinfo) throws DiffException;
-    
+
     /**
      * The method was removed for the current class that has changed.
      *
@@ -161,7 +161,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void methodRemoved(MethodInfo methodinfo) throws DiffException;
-    
+
     /**
      * The field was added for the current class that has changed.
      *
@@ -170,7 +170,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void fieldAdded(FieldInfo fieldinfo) throws DiffException;
-    
+
     /**
      * The method was added for the current class that has changed.
      *
@@ -179,7 +179,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void methodAdded(MethodInfo methodinfo) throws DiffException;
-    
+
     /**
      * The current class has changed.
      * This is called when a class's interfaces or superclass or access
@@ -192,7 +192,7 @@ public interface DiffHandler
      */
     public void classChanged(ClassInfo oldClassinfo, ClassInfo newClassinfo)
         throws DiffException;
-    
+
     /**
      * The current class has been deprecated.
      *
@@ -214,7 +214,18 @@ public interface DiffHandler
      */
     public void fieldChanged(FieldInfo oldFieldinfo, FieldInfo newFieldinfo)
         throws DiffException;
-    
+
+    /**
+     * A field on the current class has changed in a binary compatible manner.
+     *
+     * @param oldFieldinfo Information about the old field.
+     * @param newFieldinfo Information about the new field.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void fieldChangedCompat(FieldInfo oldFieldinfo, FieldInfo newFieldinfo)
+        throws DiffException;
+
     /**
      * A field on the current class has been deprecated.
      *
@@ -238,6 +249,17 @@ public interface DiffHandler
         (MethodInfo oldMethodInfo, MethodInfo newMethodInfo) throws DiffException;
 
     /**
+     * A method on the current class has changed in a binary compatible manner.
+     *
+     * @param oldMethodInfo Information about the old method.
+     * @param newMethodInfo Information about the new method.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void methodChangedCompat
+        (MethodInfo oldMethodInfo, MethodInfo newMethodInfo) throws DiffException;
+
+    /**
      * The method has been deprecated.
      *
      * @param oldMethodInfo Information about the old method.
@@ -255,7 +277,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void endClassChanged() throws DiffException;
-    
+
     /**
      * End of class changes.
      *
@@ -263,7 +285,7 @@ public interface DiffHandler
      *                       writing to a file caused an IOException
      */
     public void endChanged() throws DiffException;
-    
+
     /**
      * End of the diff.
      *

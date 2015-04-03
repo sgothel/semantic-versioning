@@ -29,29 +29,29 @@ public interface DiffCriteria
      * @return true if classinfo is interesting, false otherwise.
      */
     public boolean validClass(ClassInfo classinfo);
-    
+
     /**
      * Check if the method described by methodinfo is interesting.
      *
      * @return true if methodinfo is interesting, false otherwise.
      */
     public boolean validMethod(MethodInfo methodinfo);
-    
+
     /**
      * Check if the method described by fieldinfo is interesting.
      *
      * @return true if fieldinfo is interesting, false otherwise.
      */
     public boolean validField(FieldInfo fieldinfo);
-    
+
     /**
-     * Check if the differences between the class described by infoA and 
+     * Check if the differences between the class described by infoA and
      * the class described by infoB are interesting.
      *
      * @return true if the changes are interesting, false otherwise.
      */
     public boolean differs(ClassInfo infoA, ClassInfo infoB);
-    
+
     /**
      * Check if the differences between the method described by infoA and
      * the method described by infoB are interesting.
@@ -59,7 +59,15 @@ public interface DiffCriteria
      * @return true if the changes are interesting, false otherwise.
      */
     public boolean differs(MethodInfo methodinfo, MethodInfo methodinfo_1_);
-    
+
+    /**
+     * Check if the differences between the method described by infoA and
+     * the method described by infoB are binary incompatible.
+     *
+     * @return true if the changes are interesting, false otherwise.
+     */
+    public boolean differsBinary(MethodInfo methodinfo, MethodInfo methodinfo_1_);
+
     /**
      * Check if the differences between the field described by infoA and the
      * field described by infoB are interesting.
@@ -67,4 +75,12 @@ public interface DiffCriteria
      * @return true if the changes are interesting, false otherwise.
      */
     public boolean differs(FieldInfo fieldinfo, FieldInfo fieldinfo_2_);
+
+    /**
+     * Check if the differences between the field described by infoA and the
+     * field described by infoB are binary incompatible.
+     *
+     * @return true if the changes are interesting, false otherwise.
+     */
+    public boolean differsBinary(FieldInfo fieldinfo, FieldInfo fieldinfo_2_);
 }

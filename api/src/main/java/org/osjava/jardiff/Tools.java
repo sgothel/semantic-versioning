@@ -16,6 +16,10 @@
  */
 package org.osjava.jardiff;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.objectweb.asm.Opcodes;
 
 /**
@@ -42,7 +46,7 @@ public final class Tools
      * @param internalName The internal name of the class.
      * @return The java class name.
      */
-    public static final String getClassName(String internalName) {
+    public static final String getClassName(final String internalName) {
         final StringBuffer ret = new StringBuffer(internalName.length());
         for (int i = 0; i < internalName.length(); i++) {
             final char ch = internalName.charAt(i);
@@ -65,7 +69,7 @@ public final class Tools
         return (value & mask) == 0;
     }
 
-    private static boolean isAccessIncompatible(int oldAccess, int newAccess) {
+    private static boolean isAccessIncompatible(final int oldAccess, final int newAccess) {
         if (has(newAccess, Opcodes.ACC_PUBLIC)) {
             return false;
         } else if (has(newAccess, Opcodes.ACC_PROTECTED)) {
@@ -81,7 +85,7 @@ public final class Tools
     /**
      * @deprecated Use {@link #isClassAccessChange(int, int)}.
      */
-    public static boolean isAccessChange(int oldAccess, int newAccess) {
+    public static boolean isAccessChange(final int oldAccess, final int newAccess) {
         return isClassAccessChange(oldAccess, newAccess);
     }
 
@@ -266,4 +270,58 @@ public final class Tools
 			return oldAccess2 != newAccess2;
 		}
 	}
+
+    /**
+     * Returns whether a method's oldThrows clause differs with newThrows.
+     * <p>
+     * Note that
+     * following <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html">Java Language Specification, Java SE 7 Edition</a>:
+     * <ul>
+     *   <li><a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.4.21">13.4.21 Method and Constructor Throws</a><ul>
+     *     <li>Changes to the throws clause of methods or constructors
+     *         <b>do not break compatibility with pre-existing binaries</b>;
+     *         these clauses are <b>checked only at compile time</b>.
+     *     </li>
+     *     </ul></li>
+     * </ul>
+     * </p>
+     * @param oldThrows
+     * @param newThrows
+     *
+     * @return
+     */
+    public static boolean isThrowsClauseChange(final String[] oldThrows, final String[] newThrows) {
+        if (oldThrows == null || newThrows == null) {
+            return oldThrows != newThrows;
+        } else {
+            final Set<String> oldExceptions = new HashSet<String>(Arrays.asList(oldThrows));
+            final Set<String> newExceptions = new HashSet<String>(Arrays.asList(newThrows));
+            return !oldExceptions.equals(newExceptions);
+        }
+    }
+
+    /**
+     * Returns whether a field's oldValue differs with newValue.
+     * <p>
+     * Note that
+     * following <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html">Java Language Specification, Java SE 7 Edition</a>:
+     * <ul>
+     *   <li><a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.4.9">13.4.9 final Fields and Constants</a><ul>
+     *     <li>Deleting the keyword final or changing the value to which a field is initialized
+     *         <b>does not break compatibility</b> with existing binaries.
+     *     </li>
+     *     </ul></li>
+     * </ul>
+     * </p>
+     * @param oldValue
+     * @param newValue
+     * @return
+     */
+    public static boolean isFieldValueChange(final Object oldValue, final Object newValue) {
+        if (oldValue == null || newValue == null) {
+            return oldValue != newValue;
+        } else {
+            return !oldValue.equals(newValue);
+        }
+    }
 }

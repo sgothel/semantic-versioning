@@ -28,6 +28,18 @@ import java.util.Set;
  */
 public class SimpleDiffCriteria implements DiffCriteria
 {
+    @Override
+    public boolean equals(final Object arg) {
+        if (arg == this) {
+            return true;
+        } else if ( !(arg instanceof SimpleDiffCriteria) ) {
+            return false;
+        }
+        return true; // no states
+    }
+    @Override
+    public String toString() { return "SimpleDiffCriteria"; }
+
     /**
      * Check if a class is valid.
      * If the class is not synthetic and is public or protected, return true.
@@ -35,7 +47,7 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param info Info describing the class.
      * @return True if the class meets the criteria, false otherwise.
      */
-    public boolean validClass(ClassInfo info) {
+    public boolean validClass(final ClassInfo info) {
         return !info.isSynthetic() && (info.isPublic() || info.isProtected());
     }
 
@@ -46,7 +58,7 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param info Info describing the method.
      * @return True if the method meets the criteria, false otherwise.
      */
-    public boolean validMethod(MethodInfo info) {
+    public boolean validMethod(final MethodInfo info) {
         return !info.isSynthetic() && (info.isPublic() || info.isProtected());
     }
 
@@ -57,7 +69,7 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param info Info describing the field.
      * @return True if the field meets the criteria, false otherwise.
      */
-    public boolean validField(FieldInfo info) {
+    public boolean validField(final FieldInfo info) {
         return !info.isSynthetic() && (info.isPublic() || info.isProtected());
     }
 
@@ -70,7 +82,7 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param newInfo Info about the new version of the class.
      * @return True if the classes differ, false otherwise.
      */
-    public boolean differs(ClassInfo oldInfo, ClassInfo newInfo) {
+    public boolean differs(final ClassInfo oldInfo, final ClassInfo newInfo) {
         if (Tools.isClassAccessChange(oldInfo.getAccess(), newInfo.getAccess()))
             return true;
         // Yes classes can have a null supername, e.g. java.lang.Object !
@@ -99,20 +111,18 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param newInfo Info about the new version of the method.
      * @return True if the methods differ, false otherwise.
      */
-    public boolean differs(MethodInfo oldInfo, MethodInfo newInfo) {
-        if (Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess()))
+    public boolean differs(final MethodInfo oldInfo, final MethodInfo newInfo) {
+        if (Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
             return true;
-        if (oldInfo.getExceptions() == null
-            || newInfo.getExceptions() == null) {
-            if (oldInfo.getExceptions() != newInfo.getExceptions())
-                return true;
-        } else {
-            final Set<String> oldExceptions
-                = new HashSet(Arrays.asList(oldInfo.getExceptions()));
-            final Set<String> newExceptions
-                = new HashSet(Arrays.asList(newInfo.getExceptions()));
-            if (!oldExceptions.equals(newExceptions))
-                return true;
+        }
+        if (Tools.isThrowsClauseChange(oldInfo.getExceptions(), newInfo.getExceptions())) {
+            return true;
+        }
+        return false;
+    }
+    public boolean differsBinary(final MethodInfo oldInfo, final MethodInfo newInfo) {
+        if (Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
+            return true;
         }
         return false;
     }
@@ -126,14 +136,19 @@ public class SimpleDiffCriteria implements DiffCriteria
      * @param newInfo Info about the new version of the field.
      * @return True if the fields differ, false otherwise.
      */
-    public boolean differs(FieldInfo oldInfo, FieldInfo newInfo) {
-        if (Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()))
+    public boolean differs(final FieldInfo oldInfo, final FieldInfo newInfo) {
+        if (Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
             return true;
-        if (oldInfo.getValue() == null || newInfo.getValue() == null) {
-            if (oldInfo.getValue() != newInfo.getValue())
-                return true;
-        } else if (!oldInfo.getValue().equals(newInfo.getValue()))
+        }
+        if (Tools.isFieldValueChange(oldInfo.getValue(), newInfo.getValue())) {
             return true;
+        }
+        return false;
+    }
+    public boolean differsBinary(final FieldInfo oldInfo, final FieldInfo newInfo) {
+        if (Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
+            return true;
+        }
         return false;
     }
 }

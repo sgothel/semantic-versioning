@@ -16,7 +16,7 @@
  */
 package org.osjava.jardiff;
 
-/* Not in 1.4.2 
+/* Not in 1.4.2
 import javax.xml.XMLConstants;
 */
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -66,7 +66,7 @@ public class DOMDiffHandler implements DiffHandler
      * The current Node.
      */
     private Node currentNode;
-    
+
     /**
      * Create a new DOMDiffHandler which writes to System.out
      *
@@ -75,21 +75,21 @@ public class DOMDiffHandler implements DiffHandler
      */
     public DOMDiffHandler() throws DiffException {
         try {
-            TransformerFactory tf = TransformerFactory.newInstance();
+            final TransformerFactory tf = TransformerFactory.newInstance();
             this.transformer = tf.newTransformer();
             this.result = new StreamResult(System.out);
             this.currentNode = null;
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
+            final DocumentBuilder db = dbf.newDocumentBuilder();
             this.doc = db.newDocument();
-        } catch (TransformerConfigurationException tce) {
+        } catch (final TransformerConfigurationException tce) {
             throw new DiffException(tce);
-        } catch (ParserConfigurationException pce) {
+        } catch (final ParserConfigurationException pce) {
             throw new DiffException(pce);
         }
     }
-    
+
     /**
      * Create a new DOMDiffHandler with the specified Transformer and Result.
      * This method allows the user to choose what they are going to do with
@@ -99,22 +99,22 @@ public class DOMDiffHandler implements DiffHandler
      * @param transformer The transformer to transform the output with.
      * @param result Where to put the result.
      */
-    public DOMDiffHandler(Transformer transformer, Result result) 
+    public DOMDiffHandler(final Transformer transformer, final Result result)
         throws DiffException
     {
         try {
             this.transformer = transformer;
             this.result = result;
             this.currentNode = null;
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
+            final DocumentBuilder db = dbf.newDocumentBuilder();
             this.doc = db.newDocument();
-        } catch (ParserConfigurationException pce) {
+        } catch (final ParserConfigurationException pce) {
             throw new DiffException(pce);
         }
     }
-    
+
     /**
      * Start the diff.
      * This writes out the start of a &lt;diff&gt; node.
@@ -124,8 +124,8 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void startDiff(String oldJar, String newJar) throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "diff");
+    public void startDiff(final String oldJar, final String newJar) throws DiffException {
+        final Element tmp = doc.createElementNS(XML_URI, "diff");
         tmp.setAttribute( "old", oldJar);
         tmp.setAttribute( "new", newJar);
         doc.appendChild(tmp);
@@ -139,7 +139,7 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startOldContents() throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "oldcontents");
+        final Element tmp = doc.createElementNS(XML_URI, "oldcontents");
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
@@ -151,7 +151,7 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startNewContents() throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "newcontents");
+        final Element tmp = doc.createElementNS(XML_URI, "newcontents");
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
@@ -163,8 +163,8 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void contains(ClassInfo info) throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "class");
+    public void contains(final ClassInfo info) throws DiffException {
+        final Element tmp = doc.createElementNS(XML_URI, "class");
         tmp.setAttribute("name", info.getName());
         currentNode.appendChild(tmp);
     }
@@ -188,7 +188,7 @@ public class DOMDiffHandler implements DiffHandler
     public void endNewContents() throws DiffException {
         currentNode = currentNode.getParentNode();
     }
-    
+
     /**
      * Start the removed node.
      * This writes out a &lt;removed&gt; node.
@@ -197,11 +197,11 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startRemoved() throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "removed");
+        final Element tmp = doc.createElementNS(XML_URI, "removed");
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
-    
+
     /**
      * Write out class info for a removed class.
      * This writes out the nodes describing a class
@@ -210,10 +210,10 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classRemoved(ClassInfo info) throws DiffException {
+    public void classRemoved(final ClassInfo info) throws DiffException {
         writeClassInfo(info);
     }
-    
+
     /**
      * End the removed section.
      * This closes the &lt;removed&gt; tag.
@@ -224,7 +224,7 @@ public class DOMDiffHandler implements DiffHandler
     public void endRemoved() throws DiffException {
         currentNode = currentNode.getParentNode();
     }
-    
+
     /**
      * Start the added section.
      * This opens the &lt;added&gt; tag.
@@ -233,11 +233,11 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startAdded() throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "added");
+        final Element tmp = doc.createElementNS(XML_URI, "added");
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
-    
+
     /**
      * Write out the class info for an added class.
      * This writes out the nodes describing an added class.
@@ -246,10 +246,10 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classAdded(ClassInfo info) throws DiffException {
+    public void classAdded(final ClassInfo info) throws DiffException {
         writeClassInfo(info);
     }
-    
+
     /**
      * End the added section.
      * This closes the &lt;added&gt; tag.
@@ -260,7 +260,7 @@ public class DOMDiffHandler implements DiffHandler
     public void endAdded() throws DiffException {
         currentNode = currentNode.getParentNode();
     }
-    
+
     /**
      * Start the changed section.
      * This writes out the &lt;changed&gt; node.
@@ -269,11 +269,11 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void startChanged() throws DiffException {
-        Element tmp = doc.createElementNS(XML_URI, "changed");
+        final Element tmp = doc.createElementNS(XML_URI, "changed");
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
-    
+
     /**
      * Start a changed section for an individual class.
      * This writes out an &lt;classchanged&gt; node with the real class
@@ -283,14 +283,14 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void startClassChanged(String internalName) throws DiffException 
+    public void startClassChanged(final String internalName) throws DiffException
     {
-        Element tmp = doc.createElementNS(XML_URI, "classchanged");
+        final Element tmp = doc.createElementNS(XML_URI, "classchanged");
         tmp.setAttribute( "name", internalName);
         currentNode.appendChild(tmp);
         currentNode = tmp;
     }
-    
+
     /**
      * Write out info about a removed field.
      * This just writes out the field info, it will be inside a start/end
@@ -300,36 +300,36 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldRemoved(FieldInfo info) throws DiffException {
+    public void fieldRemoved(final FieldInfo info) throws DiffException {
         writeFieldInfo(info);
     }
-    
+
     /**
      * Write out info about a removed method.
-     * This just writes out the method info, it will be inside a start/end 
+     * This just writes out the method info, it will be inside a start/end
      * removed section.
      *
      * @param info Info about the method that's been removed.
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodRemoved(MethodInfo info) throws DiffException {
+    public void methodRemoved(final MethodInfo info) throws DiffException {
         writeMethodInfo(info);
     }
-    
+
     /**
      * Write out info about an added field.
-     * This just writes out the field info, it will be inside a start/end 
+     * This just writes out the field info, it will be inside a start/end
      * added section.
      *
      * @param info Info about the added field.
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldAdded(FieldInfo info) throws DiffException {
+    public void fieldAdded(final FieldInfo info) throws DiffException {
         writeFieldInfo(info);
     }
-    
+
     /**
      * Write out info about a added method.
      * This just writes out the method info, it will be inside a start/end
@@ -339,13 +339,13 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodAdded(MethodInfo info) throws DiffException {
+    public void methodAdded(final MethodInfo info) throws DiffException {
         writeMethodInfo(info);
     }
-    
+
     /**
      * Write out info aboout a changed class.
-     * This writes out a &lt;classchange&gt; node, followed by a 
+     * This writes out a &lt;classchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the class
      * followed by a &lt;to&gt; node with the new information about the
      * class.
@@ -355,13 +355,13 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classChanged(ClassInfo oldInfo, ClassInfo newInfo)
-        throws DiffException 
+    public void classChanged(final ClassInfo oldInfo, final ClassInfo newInfo)
+        throws DiffException
     {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "classchange");
-        Element from = doc.createElementNS(XML_URI, "from");
-        Element to = doc.createElementNS(XML_URI, "to");
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "classchange");
+        final Element from = doc.createElementNS(XML_URI, "from");
+        final Element to = doc.createElementNS(XML_URI, "to");
         tmp.appendChild(from);
         tmp.appendChild(to);
         currentNode.appendChild(tmp);
@@ -371,11 +371,11 @@ public class DOMDiffHandler implements DiffHandler
         writeClassInfo(newInfo);
         this.currentNode = currentNode;
     }
-    
+
     /**
      * Invokes {@link #classChanged(ClassInfo, ClassInfo)}.
      */
-    public void classDeprecated(ClassInfo oldInfo, ClassInfo newInfo)
+    public void classDeprecated(final ClassInfo oldInfo, final ClassInfo newInfo)
 	    throws DiffException
     {
 	classChanged(oldInfo, newInfo);
@@ -383,7 +383,7 @@ public class DOMDiffHandler implements DiffHandler
 
     /**
      * Write out info aboout a changed field.
-     * This writes out a &lt;fieldchange&gt; node, followed by a 
+     * This writes out a &lt;fieldchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the field
      * followed by a &lt;to&gt; node with the new information about the
      * field.
@@ -393,13 +393,13 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldChanged(FieldInfo oldInfo, FieldInfo newInfo)
-        throws DiffException 
+    public void fieldChanged(final FieldInfo oldInfo, final FieldInfo newInfo)
+        throws DiffException
     {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "fieldchange");
-        Element from = doc.createElementNS(XML_URI, "from");
-        Element to = doc.createElementNS(XML_URI, "to");
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "fieldchange");
+        final Element from = doc.createElementNS(XML_URI, "from");
+        final Element to = doc.createElementNS(XML_URI, "to");
         tmp.appendChild(from);
         tmp.appendChild(to);
         currentNode.appendChild(tmp);
@@ -409,18 +409,47 @@ public class DOMDiffHandler implements DiffHandler
         writeFieldInfo(newInfo);
         this.currentNode = currentNode;
     }
-    
+
+    /**
+     * Write out info about a binary compatible changed field.
+     * This writes out a &lt;fieldchangecompat&gt; node, followed by a
+     * &lt;from&gt; node, with the old information about the field
+     * followed by a &lt;to&gt; node with the new information about the
+     * field.
+     *
+     * @param oldInfo Info about the old field.
+     * @param newInfo Info about the new field.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void fieldChangedCompat(final FieldInfo oldInfo, final FieldInfo newInfo)
+        throws DiffException
+    {
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "fieldchangecompat");
+        final Element from = doc.createElementNS(XML_URI, "from");
+        final Element to = doc.createElementNS(XML_URI, "to");
+        tmp.appendChild(from);
+        tmp.appendChild(to);
+        currentNode.appendChild(tmp);
+        this.currentNode = from;
+        writeFieldInfo(oldInfo);
+        this.currentNode = to;
+        writeFieldInfo(newInfo);
+        this.currentNode = currentNode;
+    }
+
     /**
      * Invokes {@link #fieldChanged(FieldInfo, FieldInfo)}.
      */
-    public void fieldDeprecated(FieldInfo oldInfo, FieldInfo newInfo)
+    public void fieldDeprecated(final FieldInfo oldInfo, final FieldInfo newInfo)
 	    throws DiffException {
 	fieldChanged(oldInfo, newInfo);
     }
 
     /**
-     * Write out info aboout a changed method.
-     * This writes out a &lt;methodchange&gt; node, followed by a 
+     * Write out info about a changed method.
+     * This writes out a &lt;methodchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the method
      * followed by a &lt;to&gt; node with the new information about the
      * method.
@@ -430,13 +459,13 @@ public class DOMDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodChanged(MethodInfo oldInfo, MethodInfo newInfo)
+    public void methodChanged(final MethodInfo oldInfo, final MethodInfo newInfo)
         throws DiffException
     {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "methodchange");
-        Element from = doc.createElementNS(XML_URI, "from");
-        Element to = doc.createElementNS(XML_URI, "to");
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "methodchange");
+        final Element from = doc.createElementNS(XML_URI, "from");
+        final Element to = doc.createElementNS(XML_URI, "to");
         tmp.appendChild(from);
         tmp.appendChild(to);
         currentNode.appendChild(tmp);
@@ -446,11 +475,38 @@ public class DOMDiffHandler implements DiffHandler
         writeMethodInfo(newInfo);
         this.currentNode = currentNode;
     }
-    
+
+    /**
+     * Write out info about a binary compatible changed method.
+     * This writes out a &lt;methodchangecompat&gt; node, followed by a
+     * &lt;from&gt; node, with the old information about the method
+     * followed by a &lt;to&gt; node with the new information about the
+     * method.
+     *
+     * @param oldInfo Info about the old method.
+     * @param newInfo Info about the new method.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void methodChangedCompat(final MethodInfo oldInfo, final MethodInfo newInfo) throws DiffException {
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "methodchangecompat");
+        final Element from = doc.createElementNS(XML_URI, "from");
+        final Element to = doc.createElementNS(XML_URI, "to");
+        tmp.appendChild(from);
+        tmp.appendChild(to);
+        currentNode.appendChild(tmp);
+        this.currentNode = from;
+        writeMethodInfo(oldInfo);
+        this.currentNode = to;
+        writeMethodInfo(newInfo);
+        this.currentNode = currentNode;
+    }
+
     /**
      * Invokes {@link #methodChanged(MethodInfo, MethodInfo)}.
      */
-    public void methodDeprecated(MethodInfo oldInfo, MethodInfo newInfo)
+    public void methodDeprecated(final MethodInfo oldInfo, final MethodInfo newInfo)
 	    throws DiffException
     {
 	methodChanged(oldInfo, newInfo);
@@ -466,7 +522,7 @@ public class DOMDiffHandler implements DiffHandler
     public void endClassChanged() throws DiffException {
         currentNode = currentNode.getParentNode();
     }
-    
+
     /**
      * End the changed section.
      * This closes the &lt;changed&gt; node.
@@ -477,7 +533,7 @@ public class DOMDiffHandler implements DiffHandler
     public void endChanged() throws DiffException {
         currentNode = currentNode.getParentNode();
     }
-    
+
     /**
      * End the diff.
      * This closes the &lt;diff&gt; node.
@@ -486,14 +542,14 @@ public class DOMDiffHandler implements DiffHandler
      *                       writing to a file caused an IOException
      */
     public void endDiff() throws DiffException {
-        DOMSource source = new DOMSource(doc);
+        final DOMSource source = new DOMSource(doc);
         try {
         transformer.transform(source, result);
-        } catch (TransformerException te) {
+        } catch (final TransformerException te) {
             throw new DiffException(te);
         }
     }
-    
+
     /**
      * Write out information about a class.
      * This writes out a &lt;class&gt; node, which contains information about
@@ -501,9 +557,9 @@ public class DOMDiffHandler implements DiffHandler
      *
      * @param info Info about the class to write out.
      */
-    protected void writeClassInfo(ClassInfo info) {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "class");
+    protected void writeClassInfo(final ClassInfo info) {
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "class");
         currentNode.appendChild(tmp);
         this.currentNode = tmp;
         addAccessFlags(info);
@@ -516,27 +572,27 @@ public class DOMDiffHandler implements DiffHandler
         if (info.getSupername() != null)
             tmp.setAttribute( "superclass",
                               info.getSupername());
-        String[] interfaces = info.getInterfaces();
+        final String[] interfaces = info.getInterfaces();
         for (int i = 0; i < interfaces.length; i++) {
-            Element iface = doc.createElementNS(XML_URI, "implements");
+            final Element iface = doc.createElementNS(XML_URI, "implements");
             tmp.appendChild(iface);
-            iface.setAttribute( "name", 
+            iface.setAttribute( "name",
                     interfaces[i]);
         }
         this.currentNode = currentNode;
     }
-    
+
     /**
      * Write out information about a method.
      * This writes out a &lt;method&gt; node which contains information about
-     * the arguments, the return type, and the exceptions thrown by the 
+     * the arguments, the return type, and the exceptions thrown by the
      * method.
      *
      * @param info Info about the method.
      */
-    protected void writeMethodInfo(MethodInfo info) {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "method");
+    protected void writeMethodInfo(final MethodInfo info) {
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "method");
         currentNode.appendChild(tmp);
         this.currentNode = tmp;
         addAccessFlags(info);
@@ -547,17 +603,17 @@ public class DOMDiffHandler implements DiffHandler
             tmp.setAttribute( "signature", info.getSignature());
         if (info.getDesc() != null)
             addMethodNodes(info.getDesc());
-        String[] exceptions = info.getExceptions();
+        final String[] exceptions = info.getExceptions();
         if (exceptions != null) {
             for (int i = 0; i < exceptions.length; i++) {
-                Element excep = doc.createElementNS(XML_URI, "exception");
+                final Element excep = doc.createElementNS(XML_URI, "exception");
                 excep.setAttribute( "name", exceptions[i]);
                 tmp.appendChild(excep);
             }
         }
         this.currentNode = currentNode;
     }
-    
+
     /**
      * Write out information about a field.
      * This writes out a &lt;field&gt; node with attributes describing the
@@ -565,18 +621,18 @@ public class DOMDiffHandler implements DiffHandler
      *
      * @param info Info about the field.
      */
-    protected void writeFieldInfo(FieldInfo info) {
-        Node currentNode = this.currentNode;
-        Element tmp = doc.createElementNS(XML_URI, "field");
+    protected void writeFieldInfo(final FieldInfo info) {
+        final Node currentNode = this.currentNode;
+        final Element tmp = doc.createElementNS(XML_URI, "field");
         currentNode.appendChild(tmp);
         this.currentNode = tmp;
         addAccessFlags(info);
 
         if (info.getName() != null)
-            tmp.setAttribute( "name", 
+            tmp.setAttribute( "name",
                     info.getName());
         if (info.getSignature() != null)
-            tmp.setAttribute( "signature", 
+            tmp.setAttribute( "signature",
                     info.getSignature());
         if (info.getValue() != null)
             tmp.setAttribute( "value",
@@ -585,7 +641,7 @@ public class DOMDiffHandler implements DiffHandler
             addTypeNode(info.getDesc());
         this.currentNode = currentNode;
     }
-    
+
     /**
      * Add attributes describing some access flags.
      * This adds the attributes to the attr field.
@@ -593,8 +649,8 @@ public class DOMDiffHandler implements DiffHandler
      * @see #attr
      * @param info Info describing the access flags.
      */
-    protected void addAccessFlags(AbstractInfo info) {
-        Element currentNode = (Element) this.currentNode;
+    protected void addAccessFlags(final AbstractInfo info) {
+        final Element currentNode = (Element) this.currentNode;
         currentNode.setAttribute( "access", info.getAccessType());
         if (info.isAbstract())
             currentNode.setAttribute( "abstract", "yes");
@@ -629,19 +685,19 @@ public class DOMDiffHandler implements DiffHandler
         if (info.isVolatile())
             currentNode.setAttribute( "volatile", "yes");
     }
-    
+
     /**
      * Add the method nodes for the method descriptor.
-     * This writes out an &lt;arguments&gt; node containing the 
+     * This writes out an &lt;arguments&gt; node containing the
      * argument types for the method, followed by a &lt;return&gt; node
      * containing the return type.
      *
      * @param desc The descriptor for the method to write out.
      */
-    protected void addMethodNodes(String desc) {
-        Type[] args = Type.getArgumentTypes(desc);
-        Type ret = Type.getReturnType(desc);
-        Node currentNode = this.currentNode;
+    protected void addMethodNodes(final String desc) {
+        final Type[] args = Type.getArgumentTypes(desc);
+        final Type ret = Type.getReturnType(desc);
+        final Node currentNode = this.currentNode;
         Element tmp = doc.createElementNS(XML_URI,"arguments");
         currentNode.appendChild(tmp);
         this.currentNode = tmp;
@@ -653,16 +709,16 @@ public class DOMDiffHandler implements DiffHandler
         addTypeNode(ret);
         this.currentNode = currentNode;
     }
-    
+
     /**
      * Add a type node for the specified descriptor.
      *
      * @param desc A type descriptor.
      */
-    protected void addTypeNode(String desc) {
+    protected void addTypeNode(final String desc) {
         addTypeNode(Type.getType(desc));
     }
-    
+
     /**
      * Add a type node for the specified type.
      * This writes out a &lt;type&gt; node with attributes describing
@@ -671,7 +727,7 @@ public class DOMDiffHandler implements DiffHandler
      * @param type The type to describe.
      */
     protected void addTypeNode(Type type) {
-        Element tmp = doc.createElementNS(XML_URI, "type");
+        final Element tmp = doc.createElementNS(XML_URI, "type");
         currentNode.appendChild(tmp);
         int i = type.getSort();
         if (i == Type.ARRAY) {

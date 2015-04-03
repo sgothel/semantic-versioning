@@ -32,6 +32,7 @@ import org.osjava.jardiff.MethodInfo;
 import org.semver.Delta;
 import org.semver.Delta.Add;
 import org.semver.Delta.Change;
+import org.semver.Delta.CompatChange;
 import org.semver.Delta.Deprecate;
 import org.semver.Delta.Difference;
 import org.semver.Delta.Remove;
@@ -168,6 +169,15 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
     }
 
     @Override
+    public void fieldChangedCompat(final FieldInfo oldFieldInfo, final FieldInfo newFieldInfo) throws DiffException {
+        if (!isClassConsidered(getCurrentClassName())) {
+            return;
+        }
+
+        this.differences.add(new CompatChange(getCurrentClassName(), oldFieldInfo, newFieldInfo));
+    }
+
+    @Override
     public void fieldDeprecated(final FieldInfo oldFieldInfo, final FieldInfo newFieldInfo) throws DiffException {
 	if (!isClassConsidered(getCurrentClassName())) {
 	    return;
@@ -183,6 +193,15 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
         }
 
         this.differences.add(new Change(getCurrentClassName(), oldMethodInfo, newMethodInfo));
+    }
+
+    @Override
+    public void methodChangedCompat(final MethodInfo oldMethodInfo, final MethodInfo newMethodInfo) throws DiffException {
+        if (!isClassConsidered(getCurrentClassName())) {
+            return;
+        }
+
+        this.differences.add(new CompatChange(getCurrentClassName(), oldMethodInfo, newMethodInfo));
     }
 
     @Override

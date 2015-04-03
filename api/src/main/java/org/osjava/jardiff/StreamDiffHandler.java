@@ -16,7 +16,6 @@
  */
 package org.osjava.jardiff;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,7 +24,7 @@ import java.io.OutputStreamWriter;
 import org.objectweb.asm.Type;
 
 /**
- * A specific type of DiffHandler which uses an OutputStream to create an 
+ * A specific type of DiffHandler which uses an OutputStream to create an
  * XML document describing the changes in the diff.
  * This is needed for java 1.2 compatibility for the ant task.
  *
@@ -55,28 +54,28 @@ public class StreamDiffHandler implements DiffHandler
             out = new BufferedWriter(
                     new OutputStreamWriter(System.out, "UTF-8")
                     );
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Create a new StreamDiffHandler with the specified OutputStream.
      *
      * @param out Where to write output.
      */
-    public StreamDiffHandler(OutputStream out)
+    public StreamDiffHandler(final OutputStream out)
         throws DiffException
     {
         try {
             this.out = new BufferedWriter(
                     new OutputStreamWriter(out, "UTF-8")
                     );
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Start the diff.
      * This writes out the start of a &lt;diff&gt; node.
@@ -86,7 +85,7 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void startDiff(String oldJar, String newJar) throws DiffException {
+    public void startDiff(final String oldJar, final String newJar) throws DiffException {
         try {
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             out.write("<diff xmlns=\"");
@@ -96,7 +95,7 @@ public class StreamDiffHandler implements DiffHandler
             out.write("\" new=\"");
             out.write(xmlEscape(newJar));
             out.write("\">");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -110,7 +109,7 @@ public class StreamDiffHandler implements DiffHandler
     public void startOldContents() throws DiffException {
         try {
             out.write("<oldcontents>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -124,7 +123,7 @@ public class StreamDiffHandler implements DiffHandler
     public void startNewContents() throws DiffException {
         try {
             out.write("<newcontents>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -136,12 +135,12 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void contains(ClassInfo info) throws DiffException {
+    public void contains(final ClassInfo info) throws DiffException {
         try {
             out.write("<class name=\"");
             out.write(xmlEscape(info.getName()));
             out.write("\"/>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -155,7 +154,7 @@ public class StreamDiffHandler implements DiffHandler
     public void endOldContents() throws DiffException {
         try {
             out.write("</oldcontents>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -169,11 +168,11 @@ public class StreamDiffHandler implements DiffHandler
     public void endNewContents() throws DiffException {
         try {
             out.write("</newcontents>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Start the removed node.
      * This writes out a &lt;removed&gt; node.
@@ -184,11 +183,11 @@ public class StreamDiffHandler implements DiffHandler
     public void startRemoved() throws DiffException {
         try {
             out.write("<removed>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out class info for a removed class.
      * This writes out the nodes describing a class
@@ -197,14 +196,14 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classRemoved(ClassInfo info) throws DiffException {
+    public void classRemoved(final ClassInfo info) throws DiffException {
         try {
             writeClassInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * End the removed section.
      * This closes the &lt;removed&gt; tag.
@@ -215,11 +214,11 @@ public class StreamDiffHandler implements DiffHandler
     public void endRemoved() throws DiffException {
         try {
             out.write("</removed>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Start the added section.
      * This opens the &lt;added&gt; tag.
@@ -230,11 +229,11 @@ public class StreamDiffHandler implements DiffHandler
     public void startAdded() throws DiffException {
         try {
             out.write("<added>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out the class info for an added class.
      * This writes out the nodes describing an added class.
@@ -243,14 +242,14 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classAdded(ClassInfo info) throws DiffException {
+    public void classAdded(final ClassInfo info) throws DiffException {
         try {
             writeClassInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * End the added section.
      * This closes the &lt;added&gt; tag.
@@ -261,11 +260,11 @@ public class StreamDiffHandler implements DiffHandler
     public void endAdded() throws DiffException {
         try {
             out.write("</added>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Start the changed section.
      * This writes out the &lt;changed&gt; node.
@@ -276,11 +275,11 @@ public class StreamDiffHandler implements DiffHandler
     public void startChanged() throws DiffException {
         try {
             out.write("<changed>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Start a changed section for an individual class.
      * This writes out an &lt;classchanged&gt; node with the real class
@@ -290,17 +289,17 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void startClassChanged(String internalName) throws DiffException 
+    public void startClassChanged(final String internalName) throws DiffException
     {
         try {
             out.write("<classchanged name=\"");
             out.write(xmlEscape(internalName));
             out.write("\">");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out info about a removed field.
      * This just writes out the field info, it will be inside a start/end
@@ -310,48 +309,48 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldRemoved(FieldInfo info) throws DiffException {
+    public void fieldRemoved(final FieldInfo info) throws DiffException {
         try {
             writeFieldInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out info about a removed method.
-     * This just writes out the method info, it will be inside a start/end 
+     * This just writes out the method info, it will be inside a start/end
      * removed section.
      *
      * @param info Info about the method that's been removed.
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodRemoved(MethodInfo info) throws DiffException {
+    public void methodRemoved(final MethodInfo info) throws DiffException {
         try {
             writeMethodInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out info about an added field.
-     * This just writes out the field info, it will be inside a start/end 
+     * This just writes out the field info, it will be inside a start/end
      * added section.
      *
      * @param info Info about the added field.
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldAdded(FieldInfo info) throws DiffException {
+    public void fieldAdded(final FieldInfo info) throws DiffException {
         try {
             writeFieldInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out info about a added method.
      * This just writes out the method info, it will be inside a start/end
@@ -361,17 +360,17 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodAdded(MethodInfo info) throws DiffException {
+    public void methodAdded(final MethodInfo info) throws DiffException {
         try {
             writeMethodInfo(info);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out info aboout a changed class.
-     * This writes out a &lt;classchange&gt; node, followed by a 
+     * This writes out a &lt;classchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the class
      * followed by a &lt;to&gt; node with the new information about the
      * class.
@@ -381,8 +380,8 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void classChanged(ClassInfo oldInfo, ClassInfo newInfo)
-        throws DiffException 
+    public void classChanged(final ClassInfo oldInfo, final ClassInfo newInfo)
+        throws DiffException
     {
         try {
             out.write("<classchange><from>");
@@ -390,22 +389,22 @@ public class StreamDiffHandler implements DiffHandler
             out.write("</from><to>");
             writeClassInfo(newInfo);
             out.write("</to></classchange>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Invokes {@link #classChanged(ClassInfo, ClassInfo)}.
      */
-    public void classDeprecated(ClassInfo oldInfo, ClassInfo newInfo)
+    public void classDeprecated(final ClassInfo oldInfo, final ClassInfo newInfo)
 	    throws DiffException {
 	classChanged(oldInfo, newInfo);
     }
 
     /**
-     * Write out info aboout a changed field.
-     * This writes out a &lt;fieldchange&gt; node, followed by a 
+     * Write out info about a changed field.
+     * This writes out a &lt;fieldchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the field
      * followed by a &lt;to&gt; node with the new information about the
      * field.
@@ -415,8 +414,8 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void fieldChanged(FieldInfo oldInfo, FieldInfo newInfo)
-        throws DiffException 
+    public void fieldChanged(final FieldInfo oldInfo, final FieldInfo newInfo)
+        throws DiffException
     {
         try {
             out.write("<fieldchange><from>");
@@ -424,22 +423,48 @@ public class StreamDiffHandler implements DiffHandler
             out.write("</from><to>");
             writeFieldInfo(newInfo);
             out.write("</to></fieldchange>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
+    /**
+     * Write out info about a binary compatible changed field.
+     * This writes out a &lt;fieldchangecompat&gt; node, followed by a
+     * &lt;from&gt; node, with the old information about the field
+     * followed by a &lt;to&gt; node with the new information about the
+     * field.
+     *
+     * @param oldInfo Info about the old field.
+     * @param newInfo Info about the new field.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void fieldChangedCompat(final FieldInfo oldInfo, final FieldInfo newInfo)
+        throws DiffException
+    {
+        try {
+            out.write("<fieldchangecompat><from>");
+            writeFieldInfo(oldInfo);
+            out.write("</from><to>");
+            writeFieldInfo(newInfo);
+            out.write("</to></fieldchangecompat>");
+        } catch (final IOException ioe) {
+            throw new DiffException(ioe);
+        }
+    }
+
     /**
      * Invokes {@link #fieldChanged(FieldInfo, FieldInfo)}.
      */
-    public void fieldDeprecated(FieldInfo oldInfo, FieldInfo newInfo)
+    public void fieldDeprecated(final FieldInfo oldInfo, final FieldInfo newInfo)
 	    throws DiffException {
 	fieldChanged(oldInfo, newInfo);
     }
 
     /**
-     * Write out info aboout a changed method.
-     * This writes out a &lt;methodchange&gt; node, followed by a 
+     * Write out info about a changed method.
+     * This writes out a &lt;methodchange&gt; node, followed by a
      * &lt;from&gt; node, with the old information about the method
      * followed by a &lt;to&gt; node with the new information about the
      * method.
@@ -449,7 +474,7 @@ public class StreamDiffHandler implements DiffHandler
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void methodChanged(MethodInfo oldInfo, MethodInfo newInfo)
+    public void methodChanged(final MethodInfo oldInfo, final MethodInfo newInfo)
         throws DiffException
     {
         try {
@@ -458,15 +483,41 @@ public class StreamDiffHandler implements DiffHandler
             out.write("</from><to>");
             writeMethodInfo(newInfo);
             out.write("</to></methodchange>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
+    /**
+     * Write out info about a binary compatible changed method.
+     * This writes out a &lt;methodchangecompat&gt; node, followed by a
+     * &lt;from&gt; node, with the old information about the method
+     * followed by a &lt;to&gt; node with the new information about the
+     * method.
+     *
+     * @param oldInfo Info about the old method.
+     * @param newInfo Info about the new method.
+     * @throws DiffException when there is an underlying exception, e.g.
+     *                       writing to a file caused an IOException
+     */
+    public void methodChangedCompat(final MethodInfo oldInfo, final MethodInfo newInfo)
+        throws DiffException
+    {
+        try {
+            out.write("<methodchangecompat><from>");
+            writeMethodInfo(oldInfo);
+            out.write("</from><to>");
+            writeMethodInfo(newInfo);
+            out.write("</to></methodchangecompat>");
+        } catch (final IOException ioe) {
+            throw new DiffException(ioe);
+        }
+    }
+
     /**
      * Invokes {@link #methodChanged(MethodInfo, MethodInfo)}.
      */
-    public void methodDeprecated(MethodInfo oldInfo, MethodInfo newInfo)
+    public void methodDeprecated(final MethodInfo oldInfo, final MethodInfo newInfo)
 	    throws DiffException {
 	methodChanged(oldInfo, newInfo);
     }
@@ -481,11 +532,11 @@ public class StreamDiffHandler implements DiffHandler
     public void endClassChanged() throws DiffException {
         try {
             out.write("</classchanged>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * End the changed section.
      * This closes the &lt;changed&gt; node.
@@ -496,11 +547,11 @@ public class StreamDiffHandler implements DiffHandler
     public void endChanged() throws DiffException {
         try {
             out.write("</changed>");
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * End the diff.
      * This closes the &lt;diff&gt; node.
@@ -513,11 +564,11 @@ public class StreamDiffHandler implements DiffHandler
             out.write("</diff>");
             out.newLine();
             out.close();
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
-    
+
     /**
      * Write out information about a class.
      * This writes out a &lt;class&gt; node, which contains information about
@@ -526,7 +577,7 @@ public class StreamDiffHandler implements DiffHandler
      * @param info Info about the class to write out.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void writeClassInfo(ClassInfo info) throws IOException {
+    protected void writeClassInfo(final ClassInfo info) throws IOException {
         out.write("<class");
         addAccessFlags(info);
         if(info.getName() != null) {
@@ -544,7 +595,7 @@ public class StreamDiffHandler implements DiffHandler
             out.write(xmlEscape(info.getSupername()));
             out.write("\">");
         }
-        String[] interfaces = info.getInterfaces();
+        final String[] interfaces = info.getInterfaces();
         for (int i = 0; i < interfaces.length; i++) {
             out.write("<implements name=\"");
             out.write(xmlEscape(interfaces[i]));
@@ -552,17 +603,17 @@ public class StreamDiffHandler implements DiffHandler
         }
         out.write("</class>");
     }
-    
+
     /**
      * Write out information about a method.
      * This writes out a &lt;method&gt; node which contains information about
-     * the arguments, the return type, and the exceptions thrown by the 
+     * the arguments, the return type, and the exceptions thrown by the
      * method.
      *
      * @param info Info about the method.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void writeMethodInfo(MethodInfo info) throws IOException {
+    protected void writeMethodInfo(final MethodInfo info) throws IOException {
         out.write("<method");
 
         addAccessFlags(info);
@@ -581,7 +632,7 @@ public class StreamDiffHandler implements DiffHandler
         if (info.getDesc() != null) {
             addMethodNodes(info.getDesc());
         }
-        String[] exceptions = info.getExceptions();
+        final String[] exceptions = info.getExceptions();
         if (exceptions != null) {
             for (int i = 0; i < exceptions.length; i++) {
                 out.write("<exception name=\"");
@@ -591,7 +642,7 @@ public class StreamDiffHandler implements DiffHandler
         }
         out.write("</method>");
     }
-    
+
     /**
      * Write out information about a field.
      * This writes out a &lt;field&gt; node with attributes describing the
@@ -600,7 +651,7 @@ public class StreamDiffHandler implements DiffHandler
      * @param info Info about the field.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void writeFieldInfo(FieldInfo info) throws IOException {
+    protected void writeFieldInfo(final FieldInfo info) throws IOException {
         out.write("<field");
 
         addAccessFlags(info);
@@ -626,7 +677,7 @@ public class StreamDiffHandler implements DiffHandler
         }
         out.write("</field>");
     }
-    
+
     /**
      * Add attributes describing some access flags.
      * This adds the attributes to the attr field.
@@ -634,7 +685,7 @@ public class StreamDiffHandler implements DiffHandler
      * @param info Info describing the access flags.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void addAccessFlags(AbstractInfo info) throws IOException {
+    protected void addAccessFlags(final AbstractInfo info) throws IOException {
         out.write(" access=\"");
         // Doesn't need escaping.
         out.write(info.getAccessType());
@@ -672,19 +723,19 @@ public class StreamDiffHandler implements DiffHandler
         if (info.isVolatile())
             out.write(" volatile=\"yes\"");
     }
-    
+
     /**
      * Add the method nodes for the method descriptor.
-     * This writes out an &lt;arguments&gt; node containing the 
+     * This writes out an &lt;arguments&gt; node containing the
      * argument types for the method, followed by a &lt;return&gt; node
      * containing the return type.
      *
      * @param desc The descriptor for the method to write out.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void addMethodNodes(String desc) throws IOException {
-        Type[] args = Type.getArgumentTypes(desc);
-        Type ret = Type.getReturnType(desc);
+    protected void addMethodNodes(final String desc) throws IOException {
+        final Type[] args = Type.getArgumentTypes(desc);
+        final Type ret = Type.getReturnType(desc);
         out.write("<arguments>");
         for (int i = 0; i < args.length; i++)
             addTypeNode(args[i]);
@@ -693,17 +744,17 @@ public class StreamDiffHandler implements DiffHandler
         addTypeNode(ret);
         out.write("</return>");
     }
-    
+
     /**
      * Add a type node for the specified descriptor.
      *
      * @param desc A type descriptor.
      * @throws IOException when there is an underlying IOException.
      */
-    protected void addTypeNode(String desc) throws IOException {
+    protected void addTypeNode(final String desc) throws IOException {
         addTypeNode(Type.getType(desc));
     }
-    
+
     /**
      * Add a type node for the specified type.
      * This writes out a &lt;type&gt; node with attributes describing
@@ -765,9 +816,9 @@ public class StreamDiffHandler implements DiffHandler
      * @return the formatted text
      */
     private final String xmlEscape(final String str) {
-        StringBuffer ret = new StringBuffer(str.length());
+        final StringBuffer ret = new StringBuffer(str.length());
         for(int i=0;i<str.length();i++) {
-            char ch = str.charAt(i);
+            final char ch = str.charAt(i);
             switch(ch) {
                 case '<':
                     ret.append("&lt;");

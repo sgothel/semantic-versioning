@@ -88,7 +88,7 @@ public class JarDiff
     /**
      * Class info visitor, used to load information about classes.
      */
-    private ClassInfoVisitor infoVisitor = new ClassInfoVisitor();
+    private final ClassInfoVisitor infoVisitor = new ClassInfoVisitor();
 
     /**
      * Create a new JarDiff object.
@@ -101,7 +101,7 @@ public class JarDiff
      *
      * @param oldVersion the name
      */
-    public void setOldVersion(String oldVersion) {
+    public void setOldVersion(final String oldVersion) {
         this.oldVersion = oldVersion;
     }
 
@@ -119,7 +119,7 @@ public class JarDiff
      *
      * @param newVersion the version
      */
-    public void setNewVersion(String newVersion) {
+    public void setNewVersion(final String newVersion) {
         this.newVersion = newVersion;
     }
 
@@ -138,7 +138,7 @@ public class JarDiff
      * @param deps an array of urls pointing to jar files or directories
      *             containing classes which are required dependencies.
      */
-    public void setDependencies(URL[] deps) {
+    public void setDependencies(final URL[] deps) {
         this.deps = deps;
     }
 
@@ -157,7 +157,7 @@ public class JarDiff
      * @param reader the ClassReader
      * @return the ClassInfo
      */
-    public synchronized ClassInfo loadClassInfo(ClassReader reader)
+    public synchronized ClassInfo loadClassInfo(final ClassReader reader)
         throws IOException
     {
         infoVisitor.reset();
@@ -175,7 +175,7 @@ public class JarDiff
      * @throws DiffException if there is an exception reading info about a
      *                       class.
      */
-    private void loadClasses(Map infoMap, URL path) throws DiffException {
+    private void loadClasses(final Map infoMap, final URL path) throws DiffException {
         try {
             File jarFile = null;
             if(!"file".equals(path.getProtocol()) || path.getHost() != null) {
@@ -184,9 +184,9 @@ public class JarDiff
                 jarFile = File.createTempFile("jardiff","jar");
                 // Mark it to be deleted on exit.
                 jarFile.deleteOnExit();
-                InputStream in = path.openStream();
-                OutputStream out = new FileOutputStream(jarFile);
-                byte[] buffer = new byte[4096];
+                final InputStream in = path.openStream();
+                final OutputStream out = new FileOutputStream(jarFile);
+                final byte[] buffer = new byte[4096];
                 int i;
                 while( (i = in.read(buffer,0,buffer.length)) != -1) {
                     out.write(buffer, 0, i);
@@ -198,7 +198,7 @@ public class JarDiff
                 jarFile = new File(path.getPath());
             }
             loadClasses(infoMap, jarFile);
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -214,21 +214,21 @@ public class JarDiff
      * @throws IOException if there is an IOException reading info about a
      *                     class.
      */
-    private void loadClasses(Map infoMap, File file) throws DiffException {
+    private void loadClasses(final Map infoMap, final File file) throws DiffException {
         try {
-            JarFile jar = new JarFile(file);
-            Enumeration e = jar.entries();
+            final JarFile jar = new JarFile(file);
+            final Enumeration e = jar.entries();
             while (e.hasMoreElements()) {
-                JarEntry entry = (JarEntry) e.nextElement();
-                String name = entry.getName();
+                final JarEntry entry = (JarEntry) e.nextElement();
+                final String name = entry.getName();
                 if (!entry.isDirectory() && name.endsWith(".class")) {
-                    ClassReader reader
+                    final ClassReader reader
                         = new ClassReader(jar.getInputStream(entry));
-                    ClassInfo ci = loadClassInfo(reader);
+                    final ClassInfo ci = loadClassInfo(reader);
                     infoMap.put(ci.getName(), ci);
                 }
             }
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new DiffException(ioe);
         }
     }
@@ -239,7 +239,7 @@ public class JarDiff
      * @param loc The location of a jar file to load classes from.
      * @throws DiffException if there is an IOException.
      */
-    public void loadOldClasses(URL loc) throws DiffException {
+    public void loadOldClasses(final URL loc) throws DiffException {
         loadClasses(oldClassInfo, loc);
     }
 
@@ -249,7 +249,7 @@ public class JarDiff
      * @param loc The location of a jar file to load classes from.
      * @throws DiffException if there is an IOException.
      */
-    public void loadNewClasses(URL loc) throws DiffException {
+    public void loadNewClasses(final URL loc) throws DiffException {
         loadClasses(newClassInfo, loc);
     }
 
@@ -259,7 +259,7 @@ public class JarDiff
      * @param file The location of a jar file to load classes from.
      * @throws DiffException if there is an IOException
      */
-    public void loadOldClasses(File file) throws DiffException {
+    public void loadOldClasses(final File file) throws DiffException {
         loadClasses(oldClassInfo, file);
     }
 
@@ -269,7 +269,7 @@ public class JarDiff
      * @param file The location of a jar file to load classes from.
      * @throws DiffException if there is an IOException
      */
-    public void loadNewClasses(File file) throws DiffException {
+    public void loadNewClasses(final File file) throws DiffException {
         loadClasses(newClassInfo, file);
     }
 
@@ -282,21 +282,21 @@ public class JarDiff
      * @throws DiffException when there is an underlying exception, e.g.
      *                       writing to a file caused an IOException
      */
-    public void diff(DiffHandler handler, DiffCriteria criteria)
+    public void diff(final DiffHandler handler, final DiffCriteria criteria)
         throws DiffException
     {
         diff(handler, criteria, oldVersion, newVersion, oldClassInfo, newClassInfo);
     }
 
-    public void diff(DiffHandler handler, DiffCriteria criteria,
-        String oldVersion, String newVersion,
-        Map<String, ClassInfo> oldClassInfo, Map<String, ClassInfo> newClassInfo) throws DiffException
+    public void diff(final DiffHandler handler, final DiffCriteria criteria,
+        final String oldVersion, final String newVersion,
+        final Map<String, ClassInfo> oldClassInfo, final Map<String, ClassInfo> newClassInfo) throws DiffException
     {
         // TODO: Build the name from the MANIFEST rather than the filename
         handler.startDiff(oldVersion, newVersion);
 
         handler.startOldContents();
-        for (ClassInfo ci : oldClassInfo.values()) {
+        for (final ClassInfo ci : oldClassInfo.values()) {
             if (criteria.validClass(ci)) {
                 handler.contains(ci);
             }
@@ -304,23 +304,23 @@ public class JarDiff
         handler.endOldContents();
 
         handler.startNewContents();
-        for (ClassInfo ci : newClassInfo.values()) {
+        for (final ClassInfo ci : newClassInfo.values()) {
             if (criteria.validClass(ci)) {
                 handler.contains(ci);
             }
         }
         handler.endNewContents();
 
-        Set<String> onlyOld = new TreeSet<String>(oldClassInfo.keySet());
-        Set<String> onlyNew = new TreeSet<String>(newClassInfo.keySet());
-        Set<String> both = new TreeSet<String>(oldClassInfo.keySet());
+        final Set<String> onlyOld = new TreeSet<String>(oldClassInfo.keySet());
+        final Set<String> onlyNew = new TreeSet<String>(newClassInfo.keySet());
+        final Set<String> both = new TreeSet<String>(oldClassInfo.keySet());
         onlyOld.removeAll(newClassInfo.keySet());
         onlyNew.removeAll(oldClassInfo.keySet());
         both.retainAll(newClassInfo.keySet());
 
         handler.startRemoved();
-        for (String s : onlyOld) {
-            ClassInfo ci = oldClassInfo.get(s);
+        for (final String s : onlyOld) {
+            final ClassInfo ci = oldClassInfo.get(s);
             if (criteria.validClass(ci)) {
                 handler.classRemoved(ci);
             }
@@ -328,44 +328,44 @@ public class JarDiff
         handler.endRemoved();
 
         handler.startAdded();
-        for (String s : onlyNew) {
-            ClassInfo ci = newClassInfo.get(s);
+        for (final String s : onlyNew) {
+            final ClassInfo ci = newClassInfo.get(s);
             if (criteria.validClass(ci)) {
                 handler.classAdded(ci);
             }
         }
         handler.endAdded();
 
-        Set<String> removedMethods = new TreeSet<String>();
-        Set<String> removedFields = new TreeSet<String>();
-        Set<String> addedMethods = new TreeSet<String>();
-        Set<String> addedFields = new TreeSet<String>();
-        Set<String> changedMethods = new TreeSet<String>();
-        Set<String> changedFields = new TreeSet<String>();
+        final Set<String> removedMethods = new TreeSet<String>();
+        final Set<String> removedFields = new TreeSet<String>();
+        final Set<String> addedMethods = new TreeSet<String>();
+        final Set<String> addedFields = new TreeSet<String>();
+        final Set<String> changedMethods = new TreeSet<String>();
+        final Set<String> changedFields = new TreeSet<String>();
 
         handler.startChanged();
-        for (String s : both) {
-            ClassInfo oci = oldClassInfo.get(s);
-            ClassInfo nci = newClassInfo.get(s);
+        for (final String s : both) {
+            final ClassInfo oci = oldClassInfo.get(s);
+            final ClassInfo nci = newClassInfo.get(s);
             if (criteria.validClass(oci) || criteria.validClass(nci)) {
-                Map<String, MethodInfo> oldMethods = oci.getMethodMap();
-                Map<String, FieldInfo> oldFields = oci.getFieldMap();
-                Map<String, MethodInfo> newMethods = nci.getMethodMap();
-                Map<String, FieldInfo> newFields = nci.getFieldMap();
+                final Map<String, MethodInfo> oldMethods = oci.getMethodMap();
+                final Map<String, FieldInfo> oldFields = oci.getFieldMap();
+                final Map<String, MethodInfo> newMethods = nci.getMethodMap();
+                final Map<String, FieldInfo> newFields = nci.getFieldMap();
 
-                Map<String, MethodInfo> extNewMethods = new HashMap<String, MethodInfo>(newMethods);
-                Map<String, FieldInfo> extNewFields = new HashMap<String, FieldInfo>(newFields);
+                final Map<String, MethodInfo> extNewMethods = new HashMap<String, MethodInfo>(newMethods);
+                final Map<String, FieldInfo> extNewFields = new HashMap<String, FieldInfo>(newFields);
 
                 String superClass = nci.getSupername();
                 while (superClass != null && newClassInfo.containsKey(superClass)) {
-                    ClassInfo sci = newClassInfo.get(superClass);
-                    for (Map.Entry<String, FieldInfo> entry : sci.getFieldMap().entrySet()) {
+                    final ClassInfo sci = newClassInfo.get(superClass);
+                    for (final Map.Entry<String, FieldInfo> entry : sci.getFieldMap().entrySet()) {
                         if (!(entry.getValue()).isPrivate()
                                 && !extNewFields.containsKey(entry.getKey())) {
                             extNewFields.put(entry.getKey(), entry.getValue());
                         }
                     }
-                    for (Map.Entry<String, MethodInfo> entry : sci.getMethodMap().entrySet()) {
+                    for (final Map.Entry<String, MethodInfo> entry : sci.getMethodMap().entrySet()) {
                         if (!(entry.getValue()).isPrivate()
                                 && !extNewMethods.containsKey(entry.getKey())) {
                             extNewMethods.put(entry.getKey(), entry.getValue());
@@ -374,20 +374,20 @@ public class JarDiff
                     superClass = sci.getSupername();
                 }
 
-                for (Map.Entry<String, MethodInfo> entry : oldMethods.entrySet()) {
+                for (final Map.Entry<String, MethodInfo> entry : oldMethods.entrySet()) {
                     if (criteria.validMethod(entry.getValue()))
                         removedMethods.add(entry.getKey());
                 }
-                for (Map.Entry<String, FieldInfo> entry : oldFields.entrySet()) {
+                for (final Map.Entry<String, FieldInfo> entry : oldFields.entrySet()) {
                     if (criteria.validField(entry.getValue()))
                         removedFields.add(entry.getKey());
                 }
 
-                for (Map.Entry<String, MethodInfo> entry : newMethods.entrySet()) {
+                for (final Map.Entry<String, MethodInfo> entry : newMethods.entrySet()) {
                     if (criteria.validMethod(entry.getValue()))
                         addedMethods.add(entry.getKey());
                 }
-                for (Map.Entry<String, FieldInfo> entry : newFields.entrySet()) {
+                for (final Map.Entry<String, FieldInfo> entry : newFields.entrySet()) {
                     if (criteria.validField(entry.getValue()))
                         addedFields.add(entry.getKey());
                 }
@@ -409,22 +409,22 @@ public class JarDiff
 
                 Iterator<String> j = changedMethods.iterator();
                 while (j.hasNext()) {
-                    String desc = j.next();
-                    MethodInfo oldInfo = oldMethods.get(desc);
-                    MethodInfo newInfo = newMethods.get(desc);
+                    final String desc = j.next();
+                    final MethodInfo oldInfo = oldMethods.get(desc);
+                    final MethodInfo newInfo = newMethods.get(desc);
                     if (!criteria.differs(oldInfo, newInfo))
                         j.remove();
                 }
                 j = changedFields.iterator();
                 while (j.hasNext()) {
-                    String desc = j.next();
-                    FieldInfo oldInfo = oldFields.get(desc);
-                    FieldInfo newInfo = newFields.get(desc);
+                    final String desc = j.next();
+                    final FieldInfo oldInfo = oldFields.get(desc);
+                    final FieldInfo newInfo = newFields.get(desc);
                     if (!criteria.differs(oldInfo, newInfo))
                         j.remove();
                 }
 
-                boolean classchanged = criteria.differs(oci, nci);
+                final boolean classchanged = criteria.differs(oci, nci);
                 if (classchanged || !removedMethods.isEmpty()
                         || !removedFields.isEmpty() || !addedMethods.isEmpty()
                         || !addedFields.isEmpty() || !changedMethods.isEmpty()
@@ -432,19 +432,19 @@ public class JarDiff
                     handler.startClassChanged(s);
 
                     handler.startRemoved();
-                    for (String field : removedFields) {
+                    for (final String field : removedFields) {
                         handler.fieldRemoved(oldFields.get(field));
                     }
-                    for (String method : removedMethods) {
+                    for (final String method : removedMethods) {
                         handler.methodRemoved(oldMethods.get(method));
                     }
                     handler.endRemoved();
 
                     handler.startAdded();
-                    for (String field : addedFields) {
+                    for (final String field : addedFields) {
                         handler.fieldAdded(newFields.get(field));
                     }
-                    for (String method : addedMethods) {
+                    for (final String method : addedMethods) {
                         handler.methodAdded(newMethods.get(method));
                     }
                     handler.endAdded();
@@ -453,36 +453,43 @@ public class JarDiff
                     if (classchanged) {
 			            // Was only deprecated?
 			            if (wasDeprecated(oci, nci)
-				            && !criteria.differs(cloneDeprecated(oci), nci))
+				            && !criteria.differs(cloneDeprecated(oci), nci)) {
 			                handler.classDeprecated(oci, nci);
-			            else
+			            } else {
 			                handler.classChanged(oci, nci);
+			            }
                     }
 
-                    for (String field : changedFields) {
-                        FieldInfo oldFieldInfo = oldFields.get(field);
-                        FieldInfo newFieldInfo = newFields.get(field);
+                    for (final String field : changedFields) {
+                        final FieldInfo oldFieldInfo = oldFields.get(field);
+                        final FieldInfo newFieldInfo = newFields.get(field);
                         // Was only deprecated?
                         if (wasDeprecated(oldFieldInfo, newFieldInfo)
                             && !criteria.differs(
                                 cloneDeprecated(oldFieldInfo),
-                                newFieldInfo))
+                                newFieldInfo)) {
                             handler.fieldDeprecated(oldFieldInfo, newFieldInfo);
-                        else
+                        } else if( !criteria.differsBinary(oldFieldInfo, newFieldInfo)) {
+                            handler.fieldChangedCompat(oldFieldInfo, newFieldInfo);
+                        } else {
                             handler.fieldChanged(oldFieldInfo, newFieldInfo);
+                        }
                     }
-                    for (String method : changedMethods) {
-                        MethodInfo oldMethodInfo = oldMethods.get(method);
-                        MethodInfo newMethodInfo = newMethods.get(method);
+                    for (final String method : changedMethods) {
+                        final MethodInfo oldMethodInfo = oldMethods.get(method);
+                        final MethodInfo newMethodInfo = newMethods.get(method);
                         // Was only deprecated?
                         if (wasDeprecated(oldMethodInfo, newMethodInfo)
                             && !criteria.differs(
                                 cloneDeprecated(oldMethodInfo),
-                                newMethodInfo))
+                                newMethodInfo)) {
                             handler.methodDeprecated(oldMethodInfo,
                                 newMethodInfo);
-                        else
+                        } else if ( !criteria.differsBinary(oldMethodInfo, newMethodInfo) ) {
+                            handler.methodChangedCompat(oldMethodInfo, newMethodInfo);
+                        } else {
                             handler.methodChanged(oldMethodInfo, newMethodInfo);
+                        }
                     }
                     handler.endChanged();
                     handler.endClassChanged();
@@ -505,19 +512,28 @@ public class JarDiff
      * Determines if an {@link AbstractInfo} was deprecated. (Shortcut to avoid
      * creating cloned deprecated infos).
      */
-    private static boolean wasDeprecated(AbstractInfo oldInfo,
-	    AbstractInfo newInfo) {
+    private static boolean wasDeprecated(final AbstractInfo oldInfo,
+	    final AbstractInfo newInfo) {
 	return !oldInfo.isDeprecated() && newInfo.isDeprecated();
     }
 
     /**
+     * Determines if an {@link AbstractInfo} was deprecated. (Shortcut to avoid
+     * creating cloned deprecated infos).
+     */
+    private static boolean throwClauseDiffers(final AbstractInfo oldInfo,
+        final AbstractInfo newInfo) {
+    return !oldInfo.isDeprecated() && newInfo.isDeprecated();
+    }
+
+    /**
      * Clones the class info, but changes access, setting deprecated flag.
-     * 
+     *
      * @param classInfo
      *            the original class info
      * @return the cloned and deprecated info.
      */
-    private static ClassInfo cloneDeprecated(ClassInfo classInfo) {
+    private static ClassInfo cloneDeprecated(final ClassInfo classInfo) {
 	return new ClassInfo(classInfo.getVersion(), classInfo.getAccess()
 		| Opcodes.ACC_DEPRECATED, classInfo.getName(),
 		classInfo.getSignature(), classInfo.getSupername(),
@@ -527,12 +543,12 @@ public class JarDiff
 
     /**
      * Clones the method, but changes access, setting deprecated flag.
-     * 
+     *
      * @param methodInfo
      *            the original method info
      * @return the cloned and deprecated method info.
      */
-    private static MethodInfo cloneDeprecated(MethodInfo methodInfo) {
+    private static MethodInfo cloneDeprecated(final MethodInfo methodInfo) {
 	return new MethodInfo(methodInfo.getAccess() | Opcodes.ACC_DEPRECATED,
 		methodInfo.getName(), methodInfo.getDesc(),
 		methodInfo.getSignature(), methodInfo.getExceptions());
@@ -540,12 +556,12 @@ public class JarDiff
 
     /**
      * Clones the field info, but changes access, setting deprecated flag.
-     * 
+     *
      * @param fieldInfo
      *            the original field info
      * @return the cloned and deprecated field info.
      */
-    private static FieldInfo cloneDeprecated(FieldInfo fieldInfo) {
+    private static FieldInfo cloneDeprecated(final FieldInfo fieldInfo) {
 	return new FieldInfo(fieldInfo.getAccess() | Opcodes.ACC_DEPRECATED,
 		fieldInfo.getName(), fieldInfo.getDesc(),
 		fieldInfo.getSignature(), fieldInfo.getValue());
