@@ -38,10 +38,27 @@ public final class Delta {
      */
     public enum CompatibilityType {
 
+        /**
+         * No (public) changes.
+         */
         BACKWARD_COMPATIBLE_IMPLEMENTER,
 
+        /**
+         * Only <i>added</i> and <i>deprecated</i> changes,
+         * i.e. source compatible changes.
+         */
         BACKWARD_COMPATIBLE_USER,
 
+        /**
+         * Contains binary compatible changes,
+         * but may not be fully source compatible
+         * and may contain changed values of fields.
+         */
+        BACKWARD_COMPATIBLE_BINARY,
+
+        /**
+         * Contains non binary compatible changes.
+         */
         NON_BACKWARD_COMPATIBLE
     }
 
@@ -174,8 +191,9 @@ public final class Delta {
         if (contains(this.differences, Change.class) ||
             contains(this.differences, Remove.class)) {
             return CompatibilityType.NON_BACKWARD_COMPATIBLE;
+        } else if (contains(this.differences, CompatChange.class)) {
+            return CompatibilityType.BACKWARD_COMPATIBLE_BINARY;
         } else if (contains(this.differences, Add.class) ||
-                   contains(this.differences, CompatChange.class) ||
                    contains(this.differences, Deprecate.class)) {
             return CompatibilityType.BACKWARD_COMPATIBLE_USER;
         } else {
@@ -221,6 +239,7 @@ public final class Delta {
             case BACKWARD_COMPATIBLE_IMPLEMENTER:
                 return version.next(Version.Element.PATCH);
             case BACKWARD_COMPATIBLE_USER:
+            case BACKWARD_COMPATIBLE_BINARY:
                 return version.next(Version.Element.MINOR);
             case NON_BACKWARD_COMPATIBLE:
                 return version.next(Version.Element.MAJOR);

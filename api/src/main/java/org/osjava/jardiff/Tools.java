@@ -38,6 +38,17 @@ public final class Tools
     }
 
     /**
+     * Returns {@code true} if description has changed, i.e. the
+     * {@link MethodInfo#getDesc()} describing the return value.
+     * @param oldDesc
+     * @param newDesc
+     */
+    public static boolean isDescChange(final String oldDesc, final String newDesc) {
+        return null == oldDesc && null != newDesc ||
+               null != oldDesc && !oldDesc.equals(newDesc);
+    }
+
+    /**
      * Get the java class name given an internal class name.
      * This method currently replaces all instances of $ and / with . this
      * may not be according to the java language spec, and will almost
@@ -297,6 +308,14 @@ public final class Tools
             final Set<String> oldExceptions = new HashSet<String>(Arrays.asList(oldThrows));
             final Set<String> newExceptions = new HashSet<String>(Arrays.asList(newThrows));
             return !oldExceptions.equals(newExceptions);
+        }
+    }
+
+    public static boolean isFieldTypeChange(final Object oldValue, final Object newValue) {
+        if (oldValue == null || newValue == null) {
+            return oldValue != newValue;
+        } else {
+            return !oldValue.getClass().equals(newValue.getClass());
         }
     }
 

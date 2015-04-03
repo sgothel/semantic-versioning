@@ -58,10 +58,10 @@ public class Dumper {
     protected static String extractDetails(final Difference difference) {
         if (difference instanceof Delta.Change) {
             final Delta.Change change = (Delta.Change) difference;
-            return extractDetails(difference.getInfo())+", "+extractChangeDetails(difference.getInfo(), change.getModifiedInfo());
+            return extractChangeDetails(difference.getInfo(), change.getModifiedInfo());
         } else if (difference instanceof Delta.CompatChange) {
             final Delta.CompatChange change = (Delta.CompatChange) difference;
-            return extractDetails(difference.getInfo())+", "+extractCompatChangeDetails(difference.getInfo(), change.getModifiedInfo());
+            return extractCompatChangeDetails(difference.getInfo(), change.getModifiedInfo());
         } else {
             return extractDetails(difference.getInfo())+", access["+extractAccessDetails(difference.getInfo())+"]";
         }
@@ -71,24 +71,47 @@ public class Dumper {
         final StringBuilder builder = new StringBuilder();
         if (!(info instanceof ClassInfo)) {
             builder.append(info.getName());
-            if( null != info.getSignature() ) {
-                builder.append(", sig ").append(info.getSignature());
-            }
-            if( null != info.getDesc() ) {
-                builder.append(", desc ").append(info.getDesc());
-            }
+            builder.append(", ").append(info.toString());
         }
         return builder.toString();
     }
 
     protected static String extractChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
         final StringBuilder builder = new StringBuilder();
+        if (!(previousInfo instanceof ClassInfo)) {
+            builder.append(previousInfo.getName());
+            final String pSig = previousInfo.getSignature();
+            final String pDesc = previousInfo.getDesc();
+            final String cSig = currentInfo.getSignature();
+            final String cDesc = currentInfo.getDesc();
+            if( null == pSig && null != cSig ||
+                null != pSig && !pSig.equals(cSig) ) {
+                builder.append(", sig[").append(pSig).append(" -> ").append(cSig).append("]");
+            }
+            if( null == pDesc && null != cDesc ||
+                null != pDesc && !pDesc.equals(cDesc) ) {
+                builder.append(", desc[").append(pDesc).append(" -> ").append(cDesc).append("]");
+            }
+        }
+        if( previousInfo instanceof FieldInfo ) {
+            final FieldInfo fPreInfo = (FieldInfo)previousInfo;
+            final FieldInfo fCurInfo = (FieldInfo)currentInfo;
+            final Object preValue = fPreInfo.getValue();
+            final Object curValue = fCurInfo.getValue();
+            if (Tools.isFieldTypeChange(preValue, curValue)) {
+                builder.append(", type[").append(preValue.getClass())
+                .append(" -> ").append(curValue.getClass()).append("]");
+            }
+        }
         builder.append(", access[");
         return extractAccessDetails(builder, previousInfo, currentInfo).append("]").toString().trim();
     }
 
     protected static String extractCompatChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
         final StringBuilder builder = new StringBuilder();
+        if (!(previousInfo instanceof ClassInfo)) {
+            builder.append(previousInfo.getName());
+        }
         if( previousInfo instanceof MethodInfo ) {
             final MethodInfo mPreInfo = (MethodInfo)previousInfo;
             final MethodInfo mCurInfo = (MethodInfo)currentInfo;
@@ -107,10 +130,8 @@ public class Dumper {
                 } else {
                     curThrowsSet = new HashSet<String>();
                 }
-                preThrowsSet.removeAll(curThrowsSet);
-                curThrowsSet.removeAll(preThrowsSet);
-                builder.append("throws[removed").append(preThrowsSet.toString())
-                .append(", added").append(curThrowsSet.toString()).append("]");
+                builder.append(", throws[").append(preThrowsSet.toString())
+                .append(" -> ").append(curThrowsSet.toString()).append("]");
             }
         } else if( previousInfo instanceof FieldInfo ) {
             final FieldInfo fPreInfo = (FieldInfo)previousInfo;
@@ -118,8 +139,8 @@ public class Dumper {
             final Object preValue = fPreInfo.getValue();
             final Object curValue = fCurInfo.getValue();
             if (Tools.isFieldValueChange(preValue, curValue)) {
-                builder.append("value[old: ").append(preValue)
-                .append(" != new: ").append(curValue).append("]");
+                builder.append(", value[").append(preValue)
+                .append(" -> ").append(curValue).append("]");
             }
         }
         builder.append(", access[");

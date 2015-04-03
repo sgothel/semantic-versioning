@@ -412,16 +412,18 @@ public class JarDiff
                     final String desc = j.next();
                     final MethodInfo oldInfo = oldMethods.get(desc);
                     final MethodInfo newInfo = newMethods.get(desc);
-                    if (!criteria.differs(oldInfo, newInfo))
+                    if (!criteria.differs(oldInfo, newInfo)) {
                         j.remove();
+                    }
                 }
                 j = changedFields.iterator();
                 while (j.hasNext()) {
                     final String desc = j.next();
                     final FieldInfo oldInfo = oldFields.get(desc);
                     final FieldInfo newInfo = newFields.get(desc);
-                    if (!criteria.differs(oldInfo, newInfo))
+                    if (!criteria.differs(oldInfo, newInfo)) {
                         j.remove();
+                    }
                 }
 
                 final boolean classchanged = criteria.differs(oci, nci);
@@ -465,14 +467,12 @@ public class JarDiff
                         final FieldInfo newFieldInfo = newFields.get(field);
                         // Was only deprecated?
                         if (wasDeprecated(oldFieldInfo, newFieldInfo)
-                            && !criteria.differs(
-                                cloneDeprecated(oldFieldInfo),
-                                newFieldInfo)) {
+                            && !criteria.differs(cloneDeprecated(oldFieldInfo), newFieldInfo)) {
                             handler.fieldDeprecated(oldFieldInfo, newFieldInfo);
-                        } else if( !criteria.differsBinary(oldFieldInfo, newFieldInfo)) {
-                            handler.fieldChangedCompat(oldFieldInfo, newFieldInfo);
-                        } else {
+                        } else if( criteria.differsBinary(oldFieldInfo, newFieldInfo)) {
                             handler.fieldChanged(oldFieldInfo, newFieldInfo);
+                        } else {
+                            handler.fieldChangedCompat(oldFieldInfo, newFieldInfo);
                         }
                     }
                     for (final String method : changedMethods) {
@@ -480,15 +480,12 @@ public class JarDiff
                         final MethodInfo newMethodInfo = newMethods.get(method);
                         // Was only deprecated?
                         if (wasDeprecated(oldMethodInfo, newMethodInfo)
-                            && !criteria.differs(
-                                cloneDeprecated(oldMethodInfo),
-                                newMethodInfo)) {
-                            handler.methodDeprecated(oldMethodInfo,
-                                newMethodInfo);
-                        } else if ( !criteria.differsBinary(oldMethodInfo, newMethodInfo) ) {
-                            handler.methodChangedCompat(oldMethodInfo, newMethodInfo);
-                        } else {
+                            && !criteria.differs(cloneDeprecated(oldMethodInfo), newMethodInfo)) {
+                            handler.methodDeprecated(oldMethodInfo, newMethodInfo);
+                        } else if ( criteria.differsBinary(oldMethodInfo, newMethodInfo) ) {
                             handler.methodChanged(oldMethodInfo, newMethodInfo);
+                        } else {
+                            handler.methodChangedCompat(oldMethodInfo, newMethodInfo);
                         }
                     }
                     handler.endChanged();
@@ -515,15 +512,6 @@ public class JarDiff
     private static boolean wasDeprecated(final AbstractInfo oldInfo,
 	    final AbstractInfo newInfo) {
 	return !oldInfo.isDeprecated() && newInfo.isDeprecated();
-    }
-
-    /**
-     * Determines if an {@link AbstractInfo} was deprecated. (Shortcut to avoid
-     * creating cloned deprecated infos).
-     */
-    private static boolean throwClauseDiffers(final AbstractInfo oldInfo,
-        final AbstractInfo newInfo) {
-    return !oldInfo.isDeprecated() && newInfo.isDeprecated();
     }
 
     /**

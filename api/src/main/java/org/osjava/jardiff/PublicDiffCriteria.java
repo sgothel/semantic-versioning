@@ -102,53 +102,27 @@ public class PublicDiffCriteria implements DiffCriteria
         return false;
     }
 
-    /**
-     * Check if there is a change between two versions of a method.
-     * Returns true if the access flags differ, or if the thrown
-     * exceptions differ.
-     *
-     * @param oldInfo Info about the old version of the method.
-     * @param newInfo Info about the new version of the method.
-     * @return True if the methods differ, false otherwise.
-     */
+    @Override
     public boolean differs(final MethodInfo oldInfo, final MethodInfo newInfo) {
-        if (Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
-            return true;
-        }
-        if (Tools.isThrowsClauseChange(oldInfo.getExceptions(), newInfo.getExceptions())) {
-            return true;
-        }
-        return false;
+        return // Tools.isDescChange(oldInfo.getDesc(), newInfo.getDesc()) ||
+               Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
+               Tools.isThrowsClauseChange(oldInfo.getExceptions(), newInfo.getExceptions());
     }
+    @Override
     public boolean differsBinary(final MethodInfo oldInfo, final MethodInfo newInfo) {
-        if (Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
-            return true;
-        }
-        return false;
+        return // Tools.isDescChange(oldInfo.getDesc(), newInfo.getDesc()) ||
+               Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess());
     }
 
-    /**
-     * Check if there is a change between two versions of a field.
-     * Returns true if the access flags differ, or if the inital value
-     * of the field differs.
-     *
-     * @param oldInfo Info about the old version of the field.
-     * @param newInfo Info about the new version of the field.
-     * @return True if the fields differ, false otherwise.
-     */
+    @Override
     public boolean differs(final FieldInfo oldInfo, final FieldInfo newInfo) {
-        if (Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
-            return true;
-        }
-        if (Tools.isFieldValueChange(oldInfo.getValue(), newInfo.getValue())) {
-            return true;
-        }
-        return false;
+        return Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
+               // Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue())     ||
+               Tools.isFieldValueChange(oldInfo.getValue(), newInfo.getValue());
     }
+    @Override
     public boolean differsBinary(final FieldInfo oldInfo, final FieldInfo newInfo) {
-        if (Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess())) {
-            return true;
-        }
-        return false;
+        return Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()); // &&
+               // Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue());
     }
 }
