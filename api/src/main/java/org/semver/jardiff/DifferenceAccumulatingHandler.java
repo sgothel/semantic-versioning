@@ -49,6 +49,7 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
     private final Set<String> excludes;
     private final boolean excludesAreRegExp;
     private final Set<Difference> differences = new HashSet<Difference>();
+    private boolean fieldCompatChanged;
 
     public DifferenceAccumulatingHandler() {
         this(Collections.<String>emptySet(), Collections.<String>emptySet());
@@ -63,6 +64,7 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
         this.includesAreRegExp = includesAreRegExp;
         this.excludes = excludes;
         this.excludesAreRegExp = excludesAreRegExp;
+        this.fieldCompatChanged = false;
     }
 
     public String getCurrentClassName() {
@@ -173,7 +175,7 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
         if (!isClassConsidered(getCurrentClassName())) {
             return;
         }
-
+        this.fieldCompatChanged = true;
         this.differences.add(new CompatChange(getCurrentClassName(), oldFieldInfo, newFieldInfo));
     }
 
@@ -354,7 +356,7 @@ public final class DifferenceAccumulatingHandler extends AbstractDiffHandler {
      }
 
     public Delta getDelta() {
-        return new Delta(this.differences);
+        return new Delta(this.differences, this.fieldCompatChanged);
     }
 
 }

@@ -64,12 +64,12 @@ public class DeltaTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldNullVersionNotBeInferable() {
-        new Delta(EMPTY_DIFFERENCES).infer(null);
+        new Delta(EMPTY_DIFFERENCES, false).infer(null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldDevelopmentVersionNotBeInferable() {
-        new Delta(EMPTY_DIFFERENCES).infer(new Version(0, 0, 0));
+        new Delta(EMPTY_DIFFERENCES, false).infer(new Version(0, 0, 0));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(EMPTY_DIFFERENCES).infer(version);
+        final Version inferedVersion = new Delta(EMPTY_DIFFERENCES, false).infer(version);
 
         assertEquals(new Version(major, minor, patch+1), inferedVersion);
     }
@@ -91,7 +91,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Add("class", new FieldInfo(0, "", "", "", null)))).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Add("class", new FieldInfo(0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major, minor+1, 0), inferedVersion);
     }
@@ -103,7 +103,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Change("class", new FieldInfo(0, "", "", "", null), new FieldInfo(0, "", "", "", null)))).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Change("class", new FieldInfo(0, "", "", "", null), new FieldInfo(0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major+1, 0, 0), inferedVersion);
     }
@@ -115,19 +115,19 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Remove("class", new FieldInfo(0, "", "", "", null)))).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Remove("class", new FieldInfo(0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major+1, 0, 0), inferedVersion);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldValidateWithNullPreviousVersionFail() {
-        new Delta(EMPTY_DIFFERENCES).validate(null, new Version(1, 0, 0));
+        new Delta(EMPTY_DIFFERENCES, false).validate(null, new Version(1, 0, 0));
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldValidateWithNullCurrentVersionFail() {
-        new Delta(EMPTY_DIFFERENCES).validate(new Version(1, 0, 0), null);
+        new Delta(EMPTY_DIFFERENCES, false).validate(new Version(1, 0, 0), null);
     }
 
     @Test
@@ -137,12 +137,12 @@ public class DeltaTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldValidateWithPreviousVersionNextCurrentVersionFail() {
-        new Delta(EMPTY_DIFFERENCES).validate(new Version(1, 1, 0), new Version(1, 0, 0));
+        new Delta(EMPTY_DIFFERENCES, false).validate(new Version(1, 1, 0), new Version(1, 0, 0));
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldValidateWithPreviousVersionEqualsCurrentVersionFail() {
-        new Delta(EMPTY_DIFFERENCES).validate(new Version(1, 0, 0), new Version(1, 0, 0));
+        new Delta(EMPTY_DIFFERENCES, false).validate(new Version(1, 0, 0), new Version(1, 0, 0));
     }
 
     @Test
@@ -179,6 +179,6 @@ public class DeltaTest {
       assertEquals(
           "accept differences " + differences + " when changing version from " + previous + " to " + current,
           valid,
-          new Delta(differences).validate(previous, current));
+          new Delta(differences, false).validate(previous, current));
     }
 }

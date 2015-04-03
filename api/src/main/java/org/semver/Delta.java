@@ -151,9 +151,11 @@ public final class Delta {
     }
 
     private final Set<Difference> differences;
+    private final boolean fieldCompatChanged;
 
-    public Delta(@Nonnull final Set<? extends Difference> differences) {
+    public Delta(@Nonnull final Set<? extends Difference> differences, final boolean fieldCompatChanged) {
         this.differences = Collections.unmodifiableSet(differences);
+        this.fieldCompatChanged = fieldCompatChanged;
     }
 
     @Nonnull
@@ -161,9 +163,10 @@ public final class Delta {
         return this.differences;
     }
 
+    public final boolean fieldCompatChanged() { return fieldCompatChanged; }
+
     /**
-     * @param differences
-     * @return {@link CompatibilityType} based on specified {@link Difference}
+     * @return {@link CompatibilityType} based on this {@link Delta}
      */
     @Nonnull
     public final CompatibilityType computeCompatibilityType() {
@@ -178,6 +181,14 @@ public final class Delta {
         } else {
             return CompatibilityType.BACKWARD_COMPATIBLE_IMPLEMENTER;
         }
+    }
+
+    /**
+     * @param type {@link Difference} type to test
+     * @return {@code true}, if given {@link Difference} type is contained by this {@link Delta}
+     */
+    public final boolean contains(final Class<? extends Difference> type) {
+        return contains(this.differences, type);
     }
 
     protected final boolean contains(final Set<Difference> differences, final Class<? extends Difference> type) {
