@@ -16,6 +16,8 @@
  */
 package org.osjava.jardiff;
 
+import java.util.Arrays;
+
 /**
  * A class to hold information about a method.
  *
@@ -46,8 +48,8 @@ public final class MethodInfo extends AbstractInfo
      * @param signature The signature of the method.
      * @param exceptions The exceptions thrown by the method.
      */
-    public MethodInfo(int access, String name, String desc, String signature,
-                      String[] exceptions) {
+    public MethodInfo(final int access, final String name, final String desc, final String signature,
+                      final String[] exceptions) {
         super(access, name);
         this.desc = desc;
         this.signature = signature;
@@ -71,5 +73,9 @@ public final class MethodInfo extends AbstractInfo
      */
     public final String[] getExceptions() {
         return exceptions;
+    }
+
+    public String toString() {
+        return "desc["+desc+"], sig["+signature+"], throws "+(null != exceptions ? Arrays.asList(exceptions) : "nil");
     }
 }

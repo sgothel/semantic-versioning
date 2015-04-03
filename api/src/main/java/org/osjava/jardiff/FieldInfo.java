@@ -16,6 +16,8 @@
  */
 package org.osjava.jardiff;
 
+import java.util.Arrays;
+
 /**
  * Information about a field of a class.
  *
@@ -47,8 +49,8 @@ public final class FieldInfo extends AbstractInfo
      * @param signature The signature of this field.
      * @param value The initial value of the field.
      */
-    public FieldInfo(int access, String name, String desc, String signature,
-                     Object value) {
+    public FieldInfo(final int access, final String name, final String desc, final String signature,
+                     final Object value) {
         super(access, name);
         this.desc = desc;
         this.signature = signature;
@@ -72,5 +74,10 @@ public final class FieldInfo extends AbstractInfo
      */
     public final Object getValue() {
         return value;
+    }
+
+    public String toString() {
+        final String t = null != value ? value.getClass().getName() : null;
+        return "desc["+desc+"], sig["+signature+"], value[type "+t+", data "+value;
     }
 }
