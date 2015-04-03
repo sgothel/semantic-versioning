@@ -98,9 +98,11 @@ public class Dumper {
             final FieldInfo fCurInfo = (FieldInfo)currentInfo;
             final Object preValue = fPreInfo.getValue();
             final Object curValue = fCurInfo.getValue();
+            final String preType = null != preValue ? preValue.getClass().getName() : "nil";
+            final String curType = null != curValue ? curValue.getClass().getName() : "nil";
             if (Tools.isFieldTypeChange(preValue, curValue)) {
-                builder.append(", type[").append(preValue.getClass())
-                .append(" -> ").append(curValue.getClass()).append("]");
+                builder.append(", type[").append(preType)
+                .append(" -> ").append(curType).append("]");
             }
         }
         builder.append(", access[");
@@ -138,6 +140,12 @@ public class Dumper {
             final FieldInfo fCurInfo = (FieldInfo)currentInfo;
             final Object preValue = fPreInfo.getValue();
             final Object curValue = fCurInfo.getValue();
+            final String preType = null != preValue ? preValue.getClass().getName() : "nil";
+            final String curType = null != curValue ? curValue.getClass().getName() : "nil";
+            if (Tools.isFieldTypeChange(preValue, curValue)) {
+                builder.append(", type[").append(preType)
+                .append(" -> ").append(curType).append("]");
+            }
             if (Tools.isFieldValueChange(preValue, curValue)) {
                 builder.append(", value[").append(preValue)
                 .append(" -> ").append(curValue).append("]");

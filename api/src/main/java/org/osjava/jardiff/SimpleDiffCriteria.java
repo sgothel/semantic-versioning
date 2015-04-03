@@ -116,13 +116,13 @@ public class SimpleDiffCriteria implements DiffCriteria
 
     @Override
     public boolean differs(final FieldInfo oldInfo, final FieldInfo newInfo) {
-        return Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
-               // Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue())     ||
+        return Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue()) ||
+               Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
                Tools.isFieldValueChange(oldInfo.getValue(), newInfo.getValue());
     }
     @Override
     public boolean differsBinary(final FieldInfo oldInfo, final FieldInfo newInfo) {
-        return Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()); // &&
-               // Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue());
+        return Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue()) ||
+               Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess());
     }
 }
