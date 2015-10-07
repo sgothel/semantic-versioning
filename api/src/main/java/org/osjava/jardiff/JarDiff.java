@@ -356,40 +356,81 @@ public class JarDiff
                 final Map<String, MethodInfo> extNewMethods = new HashMap<String, MethodInfo>(newMethods);
                 final Map<String, FieldInfo> extNewFields = new HashMap<String, FieldInfo>(newFields);
 
-                String superClass = nci.getSupername();
-                while (superClass != null && newClassInfo.containsKey(superClass)) {
-                    final ClassInfo sci = newClassInfo.get(superClass);
-                    for (final Map.Entry<String, FieldInfo> entry : sci.getFieldMap().entrySet()) {
-                        if (!(entry.getValue()).isPrivate()
-                                && !extNewFields.containsKey(entry.getKey())) {
-                            extNewFields.put(entry.getKey(), entry.getValue());
+                // For all super classes
+                //   - Moving methods upward is OK!
+                //   - static final fields are resolved at compile time!
+                {
+                    String superClass = nci.getSupername();
+                    ClassInfo sci;
+                    while ( superClass != null && null != ( sci = newClassInfo.get(superClass) ) ) {
+                        for (final Map.Entry<String, FieldInfo> entry : sci.getFieldMap().entrySet()) {
+                            if ( !entry.getValue().isPrivate() &&
+                                 !extNewFields.containsKey(entry.getKey()) ) {
+                                extNewFields.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        for (final Map.Entry<String, MethodInfo> entry : sci.getMethodMap().entrySet()) {
+                            if ( !entry.getValue().isPrivate() &&
+                                 !extNewMethods.containsKey(entry.getKey()) ) {
+                                extNewMethods.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        superClass = sci.getSupername();
+                    }
+                }
+                // For all super interfaces
+                //   - Moving methods upward is OK!
+                //   - static final fields are resolved at compile time!
+                {
+                    final ArrayList<String> superInterfaces = new ArrayList<String>(Arrays.asList(nci.getInterfaces()));
+                    final Set<String> done = new HashSet<String>();
+                    for(int i=0; i<superInterfaces.size(); i++) {
+                        final String superFace = superInterfaces.get(i);
+                        if( null != superFace && !done.contains(superFace) ) {
+                            done.add(superFace);
+                            final ClassInfo sii;
+                            if( null != ( sii = newClassInfo.get(superFace) ) ) {
+                                for (final Map.Entry<String, FieldInfo> entry : sii.getFieldMap().entrySet()) {
+                                    if ( !entry.getValue().isPrivate() &&
+                                         !extNewFields.containsKey(entry.getKey()) ) {
+                                        extNewFields.put(entry.getKey(), entry.getValue());
+                                    }
+                                }
+                                for (final Map.Entry<String, MethodInfo> entry : sii.getMethodMap().entrySet()) {
+                                    if ( !entry.getValue().isPrivate() &&
+                                         !extNewMethods.containsKey(entry.getKey()) ) {
+                                        extNewMethods.put(entry.getKey(), entry.getValue());
+                                    }
+                                }
+                                // Append this ssi's super interfaces in a unique manner
+                                final List<String> ssi = new ArrayList<String>(Arrays.asList(sii.getInterfaces()));
+                                ssi.removeAll(superInterfaces);
+                                superInterfaces.addAll(ssi);
+                            }
                         }
                     }
-                    for (final Map.Entry<String, MethodInfo> entry : sci.getMethodMap().entrySet()) {
-                        if (!(entry.getValue()).isPrivate()
-                                && !extNewMethods.containsKey(entry.getKey())) {
-                            extNewMethods.put(entry.getKey(), entry.getValue());
-                        }
-                    }
-                    superClass = sci.getSupername();
                 }
 
                 for (final Map.Entry<String, MethodInfo> entry : oldMethods.entrySet()) {
-                    if (criteria.validMethod(entry.getValue()))
+                    if (criteria.validMethod(entry.getValue())) {
                         removedMethods.add(entry.getKey());
+                    }
                 }
                 for (final Map.Entry<String, FieldInfo> entry : oldFields.entrySet()) {
-                    if (criteria.validField(entry.getValue()))
+                    if (criteria.validField(entry.getValue())) {
                         removedFields.add(entry.getKey());
+                    }
                 }
 
                 for (final Map.Entry<String, MethodInfo> entry : newMethods.entrySet()) {
-                    if (criteria.validMethod(entry.getValue()))
+                    if (criteria.validMethod(entry.getValue())) {
                         addedMethods.add(entry.getKey());
+                    }
                 }
                 for (final Map.Entry<String, FieldInfo> entry : newFields.entrySet()) {
-                    if (criteria.validField(entry.getValue()))
+                    if (criteria.validField(entry.getValue())) {
                         addedFields.add(entry.getKey());
+                    }
                 }
 
                 // We add all the old methods that match the criteria
@@ -397,12 +438,13 @@ public class JarDiff
                 // We keep the intersection of these with all the new methods
                 // to detect as changed a method that no longer match the
                 // criteria (i.e. a method that was public and is now private)
-                changedMethods.retainAll(newMethods.keySet());
+                changedMethods.retainAll(extNewMethods.keySet());
                 removedMethods.removeAll(changedMethods);
                 removedMethods.removeAll(extNewMethods.keySet());
                 addedMethods.removeAll(changedMethods);
+
                 changedFields.addAll(removedFields);
-                changedFields.retainAll(newFields.keySet());
+                changedFields.retainAll(extNewFields.keySet());
                 removedFields.removeAll(changedFields);
                 removedFields.removeAll(extNewFields.keySet());
                 addedFields.removeAll(changedFields);
@@ -411,7 +453,7 @@ public class JarDiff
                 while (j.hasNext()) {
                     final String desc = j.next();
                     final MethodInfo oldInfo = oldMethods.get(desc);
-                    final MethodInfo newInfo = newMethods.get(desc);
+                    final MethodInfo newInfo = extNewMethods.get(desc);
                     if (!criteria.differs(oldInfo, newInfo)) {
                         j.remove();
                     }
@@ -420,7 +462,7 @@ public class JarDiff
                 while (j.hasNext()) {
                     final String desc = j.next();
                     final FieldInfo oldInfo = oldFields.get(desc);
-                    final FieldInfo newInfo = newFields.get(desc);
+                    final FieldInfo newInfo = extNewFields.get(desc);
                     if (!criteria.differs(oldInfo, newInfo)) {
                         j.remove();
                     }
@@ -464,7 +506,7 @@ public class JarDiff
 
                     for (final String field : changedFields) {
                         final FieldInfo oldFieldInfo = oldFields.get(field);
-                        final FieldInfo newFieldInfo = newFields.get(field);
+                        final FieldInfo newFieldInfo = extNewFields.get(field);
                         // Was only deprecated?
                         if (wasDeprecated(oldFieldInfo, newFieldInfo)
                             && !criteria.differs(cloneDeprecated(oldFieldInfo), newFieldInfo)) {
@@ -477,7 +519,7 @@ public class JarDiff
                     }
                     for (final String method : changedMethods) {
                         final MethodInfo oldMethodInfo = oldMethods.get(method);
-                        final MethodInfo newMethodInfo = newMethods.get(method);
+                        final MethodInfo newMethodInfo = extNewMethods.get(method);
                         // Was only deprecated?
                         if (wasDeprecated(oldMethodInfo, newMethodInfo)
                             && !criteria.differs(cloneDeprecated(oldMethodInfo), newMethodInfo)) {
@@ -537,7 +579,7 @@ public class JarDiff
      * @return the cloned and deprecated method info.
      */
     private static MethodInfo cloneDeprecated(final MethodInfo methodInfo) {
-	return new MethodInfo(methodInfo.getAccess() | Opcodes.ACC_DEPRECATED,
+	return new MethodInfo(methodInfo.getClassName(), methodInfo.getAccess() | Opcodes.ACC_DEPRECATED,
 		methodInfo.getName(), methodInfo.getDesc(),
 		methodInfo.getSignature(), methodInfo.getExceptions());
     }
@@ -550,7 +592,7 @@ public class JarDiff
      * @return the cloned and deprecated field info.
      */
     private static FieldInfo cloneDeprecated(final FieldInfo fieldInfo) {
-	return new FieldInfo(fieldInfo.getAccess() | Opcodes.ACC_DEPRECATED,
+	return new FieldInfo(fieldInfo.getClassName(), fieldInfo.getAccess() | Opcodes.ACC_DEPRECATED,
 		fieldInfo.getName(), fieldInfo.getDesc(),
 		fieldInfo.getSignature(), fieldInfo.getValue());
     }

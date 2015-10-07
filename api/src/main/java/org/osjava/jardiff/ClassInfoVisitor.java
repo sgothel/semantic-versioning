@@ -24,7 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A reusable class which uses the ASM to build up ClassInfo about a 
+ * A reusable class which uses the ASM to build up ClassInfo about a
  * java class file.
  *
  * @author <a href="mailto:antony@cyberiantiger.org">Antony Riley</a>
@@ -51,7 +51,7 @@ public class ClassInfoVisitor extends ClassVisitor
      * The signature of the class
      */
     private String signature;
-    
+
     /**
      * The internal name of the superclass.
      */
@@ -71,11 +71,11 @@ public class ClassInfoVisitor extends ClassVisitor
      * A map of field signature to a FieldInfo describing the field.
      */
     private Map<String, FieldInfo> fieldMap;
-    
+
     public ClassInfoVisitor() {
         super(Opcodes.ASM5);
     }
-    
+
     /**
      * Reset this ClassInfoVisitor so that it can be used to visit another
      * class.
@@ -84,7 +84,7 @@ public class ClassInfoVisitor extends ClassVisitor
         methodMap = new HashMap<String, MethodInfo>();
         fieldMap = new HashMap<String, FieldInfo>();
     }
-    
+
     /**
      * The the classInfo this ClassInfoVisitor has built up about a class
      */
@@ -92,7 +92,7 @@ public class ClassInfoVisitor extends ClassVisitor
         return new ClassInfo(version, access, name, signature, supername,
                              interfaces, methodMap, fieldMap);
     }
-    
+
     /**
      * Receive notification of information about a class from ASM.
      *
@@ -103,8 +103,8 @@ public class ClassInfoVisitor extends ClassVisitor
      * @param supername the internal name of the super class.
      * @param interfaces the internal names of interfaces implemented.
      */
-    public void visit(int version, int access, String name, String signature,
-                      String supername, String[] interfaces) {
+    public void visit(final int version, final int access, final String name, final String signature,
+                      final String supername, final String[] interfaces) {
         this.version = version;
         this.access = access;
         this.name = name;
@@ -114,18 +114,18 @@ public class ClassInfoVisitor extends ClassVisitor
     }
 
     @Override
-    public MethodVisitor visitMethod(int access, String name, String desc,
-                                     String signature, String[] exceptions) {
-        methodMap.put(name + desc, new MethodInfo(access, name, desc,
+    public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                     final String signature, final String[] exceptions) {
+        methodMap.put(name + desc, new MethodInfo(this.name, access, name, desc,
                                                   signature, exceptions));
         return null;
     }
-    
+
     @Override
-    public FieldVisitor visitField(int access, String name, String desc,
-                                   String signature, Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc,
+                                   final String signature, final Object value) {
         fieldMap.put(name,
-                     new FieldInfo(access, name, desc, signature, value));
+                     new FieldInfo(this.name, access, name, desc, signature, value));
         return null;
     }
 }

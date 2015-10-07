@@ -43,7 +43,7 @@ public class DeprecateDetectionTest {
   public static class ClassA extends InheritanceRoot {
     @Override
     public void aMethod() {}
-    
+
     public int aField = 0;
   }
 
@@ -51,7 +51,7 @@ public class DeprecateDetectionTest {
 	  @Override
 	  @Deprecated
 	  public void aMethod() {}
-	  
+
 	  @Deprecated
 	  public int aField = 0;
   }
@@ -68,9 +68,9 @@ public class DeprecateDetectionTest {
      * class declared twice in a test -- in real life, this would both be ClassA's,
      * in different jars).
      */
-    Map<String, ClassInfo> oldClassInfoMap = new HashMap<String, ClassInfo>();
-    Map<String, ClassInfo> newClassInfoMap = new HashMap<String, ClassInfo>();
-    JarDiff jd = new JarDiff();
+    final Map<String, ClassInfo> oldClassInfoMap = new HashMap<String, ClassInfo>();
+    final Map<String, ClassInfo> newClassInfoMap = new HashMap<String, ClassInfo>();
+    final JarDiff jd = new JarDiff();
     addClassInfo(oldClassInfoMap, ClassA.class, jd);
     addClassInfo(oldClassInfoMap, DirectDescendant.class, jd);
     addClassInfo(oldClassInfoMap, InheritanceRoot.class, jd);
@@ -82,25 +82,26 @@ public class DeprecateDetectionTest {
     newClassInfoMap.put("org/semver/jardiff/DeprecateDetectionTest$ClassA",
             newClassInfoMap.get("org/semver/jardiff/DeprecateDetectionTest$ClassB"));
     newClassInfoMap.remove("org/semver/jardiff/DeprecateDetectionTest$ClassB");
-    DifferenceAccumulatingHandler handler = new DifferenceAccumulatingHandler();
-    jd.diff(handler, new SimpleDiffCriteria(),
+    final DifferenceAccumulatingHandler handler = new DifferenceAccumulatingHandler();
+    jd.diff(handler, new SimpleDiffCriteria(true),
         "0.1.0", "0.2.0", oldClassInfoMap, newClassInfoMap);
-    
-    Dumper.dump(handler.getDelta());
 
-    Set<Difference> differences = handler.getDelta().getDifferences();
+    // Dumper.dump(handler.getDelta());
+    Dumper.dumpFullStats(handler.getDelta(), 4, System.out);
+
+    final Set<Difference> differences = handler.getDelta().getDifferences();
 	Assert.assertEquals("differences found", 3, differences.size());
 	// Naive search for Deprecate.
 	boolean hasDeprecate = false;
-	for (Difference d : differences) {
+	for (final Difference d : differences) {
 		if (d instanceof Deprecate)
 			hasDeprecate = true;
 	}
 	Assert.assertTrue("No Delta.Deprecate found", hasDeprecate);
   }
 
-  private void addClassInfo(Map<String, ClassInfo> classMap, Class klass, JarDiff jd) throws Exception {
-    ClassInfo classInfo = jd.loadClassInfo(new ClassReader(klass.getName()));
+  private void addClassInfo(final Map<String, ClassInfo> classMap, final Class klass, final JarDiff jd) throws Exception {
+    final ClassInfo classInfo = jd.loadClassInfo(new ClassReader(klass.getName()));
     classMap.put(classInfo.getName(), classInfo);
   }
 }

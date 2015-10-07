@@ -25,6 +25,7 @@ import org.osjava.jardiff.ClassInfo;
 import org.osjava.jardiff.JarDiff;
 import org.osjava.jardiff.SimpleDiffCriteria;
 import org.semver.Delta;
+import org.semver.Dumper;
 import org.semver.Delta.Change;
 
 public class ClassInheritanceTest {
@@ -58,9 +59,9 @@ public class ClassInheritanceTest {
      * class declared twice in a test -- in real life, this would both be ClassA's,
      * in different jars).
      */
-    Map<String, ClassInfo> oldClassInfoMap = new HashMap<String, ClassInfo>();
-    Map<String, ClassInfo> newClassInfoMap = new HashMap<String, ClassInfo>();
-    JarDiff jd = new JarDiff();
+    final Map<String, ClassInfo> oldClassInfoMap = new HashMap<String, ClassInfo>();
+    final Map<String, ClassInfo> newClassInfoMap = new HashMap<String, ClassInfo>();
+    final JarDiff jd = new JarDiff();
     addClassInfo(oldClassInfoMap, ClassA.class, jd);
     addClassInfo(oldClassInfoMap, DirectDescendant.class, jd);
     addClassInfo(oldClassInfoMap, InheritanceRoot.class, jd);
@@ -69,17 +70,19 @@ public class ClassInheritanceTest {
     addClassInfo(newClassInfoMap, InheritanceRoot.class, jd);
 
     // Make B look like A
-    ClassInfo a = oldClassInfoMap.get("org/semver/jardiff/ClassInheritanceTest$ClassA");
-    ClassInfo b = newClassInfoMap.get("org/semver/jardiff/ClassInheritanceTest$ClassB");
+    final ClassInfo a = oldClassInfoMap.get("org/semver/jardiff/ClassInheritanceTest$ClassA");
+    final ClassInfo b = newClassInfoMap.get("org/semver/jardiff/ClassInheritanceTest$ClassB");
     newClassInfoMap.put(a.getName(), new ClassInfo(b.getVersion(), b.getAccess(), a.getName(),
             b.getSignature(), b.getSupername(), b.getInterfaces(),
             b.getMethodMap(), b.getFieldMap()));
     newClassInfoMap.remove(b.getName());
-    DifferenceAccumulatingHandler handler = new DifferenceAccumulatingHandler();
-    jd.diff(handler, new SimpleDiffCriteria(),
+    final DifferenceAccumulatingHandler handler = new DifferenceAccumulatingHandler();
+    jd.diff(handler, new SimpleDiffCriteria(true),
         "0.1.0", "0.2.0", oldClassInfoMap, newClassInfoMap);
 
-    for (Delta.Difference d: handler.getDelta().getDifferences()) {
+    Dumper.dumpFullStats(handler.getDelta(), 4, System.out);
+
+    for (final Delta.Difference d: handler.getDelta().getDifferences()) {
       System.err.println(d.getClassName() + " : " + d.getClass().getName()
           + " : " + d.getInfo().getName() + " : " + d.getInfo().getAccessType());
       if (d instanceof Change) {
@@ -89,8 +92,8 @@ public class ClassInheritanceTest {
     Assert.assertEquals("differences found", 1, handler.getDelta().getDifferences().size());
   }
 
-  private void addClassInfo(Map<String, ClassInfo> classMap, Class klass, JarDiff jd) throws Exception {
-    ClassInfo classInfo = jd.loadClassInfo(new ClassReader(klass.getName()));
+  private void addClassInfo(final Map<String, ClassInfo> classMap, final Class klass, final JarDiff jd) throws Exception {
+    final ClassInfo classInfo = jd.loadClassInfo(new ClassReader(klass.getName()));
     classMap.put(classInfo.getName(), classInfo);
   }
 

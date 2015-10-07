@@ -23,7 +23,7 @@ import java.util.Arrays;
  *
  * @author <a href="mailto:antony@cyberiantiger.org">Antony Riley</a>
  */
-public final class FieldInfo extends AbstractInfo
+public final class FieldInfo extends AbstractMemberInfo
 {
     /**
      * The field descriptor for this field.
@@ -43,15 +43,16 @@ public final class FieldInfo extends AbstractInfo
     /**
      * Create a new FieldInfo
      *
+     * @param className The name of the class this field belongs to
      * @param access The access flags.
      * @param name The name of the field.
      * @param desc The field descriptor.
      * @param signature The signature of this field.
      * @param value The initial value of the field.
      */
-    public FieldInfo(final int access, final String name, final String desc, final String signature,
+    public FieldInfo(final String className, final int access, final String name, final String desc, final String signature,
                      final Object value) {
-        super(access, name);
+        super(className, access, name);
         this.desc = desc;
         this.signature = signature;
         this.value = value;

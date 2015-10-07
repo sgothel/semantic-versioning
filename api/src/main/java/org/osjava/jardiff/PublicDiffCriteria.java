@@ -28,6 +28,15 @@ import java.util.Set;
  */
 public class PublicDiffCriteria implements DiffCriteria
 {
+    final boolean ignoreClassName;
+
+    public PublicDiffCriteria() {
+        this.ignoreClassName = false;
+    }
+    public PublicDiffCriteria(final boolean ignoreClassName) {
+        this.ignoreClassName = ignoreClassName;
+    }
+
     @Override
     public boolean equals(final Object arg) {
         if (arg == this) {
@@ -104,7 +113,8 @@ public class PublicDiffCriteria implements DiffCriteria
 
     @Override
     public boolean differs(final MethodInfo oldInfo, final MethodInfo newInfo) {
-        return // Tools.isDescChange(oldInfo.getDesc(), newInfo.getDesc()) ||
+        return !ignoreClassName && !oldInfo.getClassName().equals(newInfo.getClassName()) ||
+               // Tools.isDescChange(oldInfo.getDesc(), newInfo.getDesc()) ||
                Tools.isMethodAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
                Tools.isThrowsClauseChange(oldInfo.getExceptions(), newInfo.getExceptions());
     }
@@ -116,7 +126,8 @@ public class PublicDiffCriteria implements DiffCriteria
 
     @Override
     public boolean differs(final FieldInfo oldInfo, final FieldInfo newInfo) {
-        return Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue()) ||
+        return !ignoreClassName && !oldInfo.getClassName().equals(newInfo.getClassName()) ||
+               Tools.isFieldTypeChange(oldInfo.getValue(), newInfo.getValue()) ||
                Tools.isFieldAccessChange(oldInfo.getAccess(), newInfo.getAccess()) ||
                Tools.isFieldValueChange(oldInfo.getValue(), newInfo.getValue());
     }

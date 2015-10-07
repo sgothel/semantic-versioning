@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.osjava.jardiff.AbstractInfo;
+import org.osjava.jardiff.AbstractMemberInfo;
 import org.osjava.jardiff.ClassInfo;
 import org.osjava.jardiff.FieldInfo;
 import org.osjava.jardiff.MethodInfo;
@@ -76,10 +77,39 @@ public class Dumper {
         return builder.toString();
     }
 
+    private static int findCommonPrefix(final String strA, final String strB, final char c) {
+        int i = 0;
+        int lastC = -1;
+        final int end = Math.min(strA.length(), strB.length());
+        for (; i < end; i++) {
+            final char strAc = strA.charAt(i);
+            if (strAc != strB.charAt(i)) {
+                break;
+            } else if( 0 < c && strAc == c ) {
+                lastC = i;
+            }
+        }
+        return lastC >= 0 ? lastC+1 : i;
+    }
+
+    protected static StringBuilder appendNameChangeDetails(final StringBuilder builder, final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
+        if( previousInfo instanceof AbstractMemberInfo && currentInfo instanceof AbstractMemberInfo ) {
+            final String preClz = ((AbstractMemberInfo)previousInfo).getClassName().replace('/', '.');
+            final String curClz = ((AbstractMemberInfo)currentInfo).getClassName().replace('/', '.');
+            final int prefixIdx = findCommonPrefix(preClz, curClz, '.');
+            final String common = preClz.substring(0, prefixIdx);
+            if( !preClz.equals(curClz) ) {
+                builder.append(common+"["+preClz.substring(prefixIdx, preClz.length())+" -> "+curClz.substring(prefixIdx, curClz.length())+"].");
+            }
+        }
+        builder.append(previousInfo.getName());
+        return builder;
+    }
+
     protected static String extractChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
         final StringBuilder builder = new StringBuilder();
         if (!(previousInfo instanceof ClassInfo)) {
-            builder.append(previousInfo.getName());
+            appendNameChangeDetails(builder, previousInfo, currentInfo);
             final String pSig = previousInfo.getSignature();
             final String pDesc = previousInfo.getDesc();
             final String cSig = currentInfo.getSignature();
@@ -112,7 +142,7 @@ public class Dumper {
     protected static String extractCompatChangeDetails(final AbstractInfo previousInfo, final AbstractInfo currentInfo) {
         final StringBuilder builder = new StringBuilder();
         if (!(previousInfo instanceof ClassInfo)) {
-            builder.append(previousInfo.getName());
+            appendNameChangeDetails(builder, previousInfo, currentInfo);
         }
         if( previousInfo instanceof MethodInfo ) {
             final MethodInfo mPreInfo = (MethodInfo)previousInfo;

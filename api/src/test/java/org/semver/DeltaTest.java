@@ -91,7 +91,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Add("class", new FieldInfo(0, "", "", "", null))), false).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Add("class", new FieldInfo("class", 0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major, minor+1, 0), inferedVersion);
     }
@@ -103,7 +103,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Change("class", new FieldInfo(0, "", "", "", null), new FieldInfo(0, "", "", "", null))), false).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Change("class", new FieldInfo("class", 0, "", "", "", null), new FieldInfo("class", 0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major+1, 0, 0), inferedVersion);
     }
@@ -115,7 +115,7 @@ public class DeltaTest {
         final int patch = 3;
         final Version version = new Version(major, minor, patch);
 
-        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Remove("class", new FieldInfo(0, "", "", "", null))), false).infer(version);
+        final Version inferedVersion = new Delta(Collections.singleton(new Delta.Remove("class", new FieldInfo("class", 0, "", "", "", null))), false).infer(version);
 
         assertEquals(new Version(major+1, 0, 0), inferedVersion);
     }
@@ -157,7 +157,7 @@ public class DeltaTest {
 
     @Test
     public void shouldValidateWithIncorrectVersionFail() {
-      validate(Collections.singleton(new Delta.Remove("class", new FieldInfo(0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 1, 1), false);
+      validate(Collections.singleton(new Delta.Remove("class", new FieldInfo("class", 0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 1, 1), false);
     }
 
     @Test
@@ -167,15 +167,15 @@ public class DeltaTest {
 
     @Test
     public void upgradeMinorVersionOnFieldDeprecated() {
-      validate(singleton(new Delta.Deprecate("class", new FieldInfo(0, "", "", "", null), new FieldInfo(0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 2, 0), true);
+      validate(singleton(new Delta.Deprecate("class", new FieldInfo("class", 0, "", "", "", null), new FieldInfo("class", 0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 2, 0), true);
     }
 
     @Test
     public void upgradeMinorVersionOnMethodDeprecated() {
-      validate(singleton(new Delta.Deprecate("class", new MethodInfo(0, "", "", "", null), new MethodInfo(0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 2, 0), true);
+      validate(singleton(new Delta.Deprecate("class", new MethodInfo("class", 0, "", "", "", null), new MethodInfo("class", 0, "", "", "", null))), new Version(1, 1, 0), new Version(1, 2, 0), true);
     }
 
-    private void validate(Set<? extends Delta.Difference> differences, Version previous, Version current, boolean valid) {
+    private void validate(final Set<? extends Delta.Difference> differences, final Version previous, final Version current, final boolean valid) {
       assertEquals(
           "accept differences " + differences + " when changing version from " + previous + " to " + current,
           valid,

@@ -23,7 +23,7 @@ import java.util.Arrays;
  *
  * @author <a href="mailto:antony@cyberiantiger.org">Antony Riley</a>
  */
-public final class MethodInfo extends AbstractInfo
+public final class MethodInfo extends AbstractMemberInfo
 {
     /**
      * The method descriptor.
@@ -43,14 +43,15 @@ public final class MethodInfo extends AbstractInfo
     /**
      * Create a new MethodInfo with the specified parameters.
      *
+     * @param className The name of the class this method belongs to
      * @param access The access flags for the method.
      * @param name The name of the method.
      * @param signature The signature of the method.
      * @param exceptions The exceptions thrown by the method.
      */
-    public MethodInfo(final int access, final String name, final String desc, final String signature,
+    public MethodInfo(final String className, final int access, final String name, final String desc, final String signature,
                       final String[] exceptions) {
-        super(access, name);
+        super(className, access, name);
         this.desc = desc;
         this.signature = signature;
         this.exceptions = exceptions;
